@@ -11,17 +11,20 @@ class BudgetController extends Controller
 {
     public function index(Request $request)
     {
+        $userId = session('user_id');
         $month = $request->get('month', now()->month);
         $year = $request->get('year', now()->year);
         
-        $budgets = Budget::where('month', $month)
+        $budgets = Budget::where('user_id', $userId)
+            ->where('month', $month)
             ->where('year', $year)
             ->with('category')
             ->get();
         
         // Calculer les dépenses réelles pour chaque budget
         foreach($budgets as $budget) {
-            $budget->spent = Transaction::where('category_id', $budget->category_id)
+            $budget->spent = Transaction::where('user_id', $userId)
+                ->where('category_id', $budget->category_id)
                 ->where('type', 'expense')
                 ->whereMonth('date', $month)
                 ->whereYear('date', $year)
@@ -30,7 +33,13 @@ class BudgetController extends Controller
             $budget->remaining = $budget->amount - $budget->spent;
         }
         
-        $categories = Category::where('type', 'expense')->get();
+        // Catégories disponibles pour l'utilisateur
+        $categories = Category::where('type', 'expense')
+            ->where(function($q) use ($userId) {
+                $q->where('user_id', $userId)->orWhere('is_default', true);
+            })
+            ->get();
+            
         $availableMonths = range(1, 12);
         $availableYears = range(now()->year - 2, now()->year + 1);
         
@@ -39,12 +48,20 @@ class BudgetController extends Controller
     
     public function create()
     {
-        $categories = Category::where('type', 'expense')->get();
+        $userId = session('user_id');
+        $categories = Category::where('type', 'expense')
+            ->where(function($q) use ($userId) {
+                $q->where('user_id', $userId)->orWhere('is_default', true);
+            })
+            ->get();
+            
         return view('budgets.create', compact('categories'));
     }
     
     public function store(Request $request)
     {
+        $userId = session('user_id');
+        
         $validated = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'amount' => 'required|numeric|min:0',
@@ -53,7 +70,8 @@ class BudgetController extends Controller
         ]);
         
         // Vérifier si un budget existe déjà
-        $existing = Budget::where('category_id', $validated['category_id'])
+        $existing = Budget::where('user_id', $userId)
+            ->where('category_id', $validated['category_id'])
             ->where('month', $validated['month'])
             ->where('year', $validated['year'])
             ->first();
@@ -64,6 +82,7 @@ class BudgetController extends Controller
                 ->withInput();
         }
         
+        $validated['user_id'] = $userId;
         Budget::create($validated);
         
         return redirect()->route('budgets.index', ['month' => $validated['month'], 'year' => $validated['year']])
@@ -72,12 +91,28 @@ class BudgetController extends Controller
     
     public function edit(Budget $budget)
     {
-        $categories = Category::where('type', 'expense')->get();
+        // Vérifier que le budget appartient à l'utilisateur
+        if ($budget->user_id != session('user_id')) {
+            abort(403, 'Accès non autorisé.');
+        }
+        
+        $userId = session('user_id');
+        $categories = Category::where('type', 'expense')
+            ->where(function($q) use ($userId) {
+                $q->where('user_id', $userId)->orWhere('is_default', true);
+            })
+            ->get();
+            
         return view('budgets.edit', compact('budget', 'categories'));
     }
     
     public function update(Request $request, Budget $budget)
     {
+        // Vérifier que le budget appartient à l'utilisateur
+        if ($budget->user_id != session('user_id')) {
+            abort(403, 'Accès non autorisé.');
+        }
+        
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0',
         ]);
@@ -90,6 +125,11 @@ class BudgetController extends Controller
     
     public function destroy(Budget $budget)
     {
+        // Vérifier que le budget appartient à l'utilisateur
+        if ($budget->user_id != session('user_id')) {
+            abort(403, 'Accès non autorisé.');
+        }
+        
         $month = $budget->month;
         $year = $budget->year;
         $budget->delete();

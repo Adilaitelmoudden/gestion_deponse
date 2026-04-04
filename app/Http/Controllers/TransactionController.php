@@ -11,7 +11,8 @@ class TransactionController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Transaction::with('category');
+        $userId = session('user_id');
+        $query = Transaction::where('user_id', $userId)->with('category');
         
         // Filtres
         if($request->filled('type') && $request->type != 'all') {
@@ -36,16 +37,25 @@ class TransactionController extends Controller
         }
         
         $transactions = $query->latest('date')->paginate(15);
-        $categories = Category::all();
-        $totalIncome = Transaction::where('type', 'income')->sum('amount');
-        $totalExpense = Transaction::where('type', 'expense')->sum('amount');
+        
+        // Catégories disponibles pour l'utilisateur
+        $categories = Category::where(function($q) use ($userId) {
+            $q->where('user_id', $userId)->orWhere('is_default', true);
+        })->get();
+        
+        $totalIncome = Transaction::where('user_id', $userId)->where('type', 'income')->sum('amount');
+        $totalExpense = Transaction::where('user_id', $userId)->where('type', 'expense')->sum('amount');
         
         return view('transactions.index', compact('transactions', 'categories', 'totalIncome', 'totalExpense'));
     }
     
     public function create()
     {
-        $categories = Category::all();
+        $userId = session('user_id');
+        $categories = Category::where(function($q) use ($userId) {
+            $q->where('user_id', $userId)->orWhere('is_default', true);
+        })->get();
+        
         return view('transactions.create', compact('categories'));
     }
     
@@ -59,6 +69,8 @@ class TransactionController extends Controller
             'type' => 'required|in:income,expense'
         ]);
         
+        $validated['user_id'] = session('user_id');
+        
         Transaction::create($validated);
         
         return redirect()->route('transactions.index')
@@ -67,17 +79,35 @@ class TransactionController extends Controller
     
     public function show(Transaction $transaction)
     {
+        // Vérifier que la transaction appartient à l'utilisateur connecté
+        if ($transaction->user_id != session('user_id')) {
+            abort(403, 'Accès non autorisé.');
+        }
         return view('transactions.show', compact('transaction'));
     }
     
     public function edit(Transaction $transaction)
     {
-        $categories = Category::all();
+        // Vérifier que la transaction appartient à l'utilisateur connecté
+        if ($transaction->user_id != session('user_id')) {
+            abort(403, 'Accès non autorisé.');
+        }
+        
+        $userId = session('user_id');
+        $categories = Category::where(function($q) use ($userId) {
+            $q->where('user_id', $userId)->orWhere('is_default', true);
+        })->get();
+        
         return view('transactions.edit', compact('transaction', 'categories'));
     }
     
     public function update(Request $request, Transaction $transaction)
     {
+        // Vérifier que la transaction appartient à l'utilisateur connecté
+        if ($transaction->user_id != session('user_id')) {
+            abort(403, 'Accès non autorisé.');
+        }
+        
         $validated = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'amount' => 'required|numeric|min:0.01',
@@ -94,6 +124,11 @@ class TransactionController extends Controller
     
     public function destroy(Transaction $transaction)
     {
+        // Vérifier que la transaction appartient à l'utilisateur connecté
+        if ($transaction->user_id != session('user_id')) {
+            abort(403, 'Accès non autorisé.');
+        }
+        
         $transaction->delete();
         
         return redirect()->route('transactions.index')
@@ -107,7 +142,10 @@ class TransactionController extends Controller
             'ids.*' => 'exists:transactions,id'
         ]);
         
-        Transaction::whereIn('id', $request->ids)->delete();
+        $userId = session('user_id');
+        Transaction::whereIn('id', $request->ids)
+            ->where('user_id', $userId)
+            ->delete();
         
         return redirect()->route('transactions.index')
             ->with('success', 'Transactions supprimées avec succès!');
