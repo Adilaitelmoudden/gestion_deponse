@@ -7,6 +7,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Admin\UserManagementController;
 
 // Routes d'authentification (non protégées)
@@ -19,30 +20,35 @@ Route::middleware(['guest'])->group(function () {
 
 // Routes protégées (authentification requise)
 Route::middleware(['auth'])->group(function () {
-    // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    
+
     // Profil
     Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
     Route::put('/profile', [AuthController::class, 'updateProfile'])->name('profile.update');
-    
+
     // Dashboard
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     // Transactions
     Route::resource('transactions', TransactionController::class);
     Route::post('transactions/bulk-delete', [TransactionController::class, 'bulkDelete'])->name('transactions.bulk-delete');
-    
+
     // Categories
     Route::resource('categories', CategoryController::class);
-    
+
     // Budgets
     Route::resource('budgets', BudgetController::class);
-    
+
     // Reports
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
     Route::post('reports/generate', [ReportController::class, 'generate'])->name('reports.generate');
-    
+
+    // NEW: Notifications
+    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::delete('notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::get('api/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
+
     // Admin routes
     Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function () {
         Route::resource('users', UserManagementController::class);

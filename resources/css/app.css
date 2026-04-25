@@ -1,11 +1,242 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+/* ── Custom Design Tokens ─────────────────────────────────── */
+:root {
+    --bg:        #f5f3ee;
+    --surface:   #ffffff;
+    --border:    #e2ddd5;
+    --text:      #1a1714;
+    --muted:     #6b6560;
+    --accent:    #c84b2f;
+    --accent-h:  #a83a21;
+    --shadow:    rgba(26, 23, 20, 0.08);
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --transition-speed: 350ms;
 }
+
+html.dark {
+    --bg:        #121010;
+    --surface:   #1e1b19;
+    --border:    #2e2926;
+    --text:      #f0ece6;
+    --muted:     #9c9490;
+    --accent:    #e8664a;
+    --accent-h:  #c84b2f;
+    --shadow:    rgba(0, 0, 0, 0.35);
+}
+
+/* ── Base ─────────────────────────────────────────────────── */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html {
+    transition:
+        background-color var(--transition-speed) ease,
+        color            var(--transition-speed) ease;
+}
+
+body {
+    background-color: var(--bg);
+    color:            var(--text);
+    font-family:      'Lora', Georgia, serif;
+    min-height:       100vh;
+    margin:           0;
+    transition:
+        background-color var(--transition-speed) ease,
+        color            var(--transition-speed) ease;
+}
+
+/* ── Layout ───────────────────────────────────────────────── */
+.page-wrapper {
+    max-width:  860px;
+    margin:     0 auto;
+    padding:    3rem 1.5rem;
+}
+
+/* ── Card ─────────────────────────────────────────────────── */
+.card {
+    background:    var(--surface);
+    border:        1px solid var(--border);
+    border-radius: 1rem;
+    padding:       2.5rem;
+    box-shadow:    0 4px 24px var(--shadow);
+    transition:
+        background-color var(--transition-speed) ease,
+        border-color     var(--transition-speed) ease,
+        box-shadow       var(--transition-speed) ease;
+}
+
+/* ── Dark-Mode Toggle Button ──────────────────────────────── */
+.theme-toggle {
+    display:         inline-flex;
+    align-items:     center;
+    gap:             0.55rem;
+    padding:         0.55rem 1.2rem;
+    border-radius:   999px;
+    border:          1.5px solid var(--border);
+    background:      var(--surface);
+    color:           var(--text);
+    font-family:     'DM Mono', 'Courier New', monospace;
+    font-size:       0.78rem;
+    letter-spacing:  0.04em;
+    cursor:          pointer;
+    user-select:     none;
+    transition:
+        background-color var(--transition-speed) ease,
+        border-color     var(--transition-speed) ease,
+        color            var(--transition-speed) ease,
+        transform        150ms ease,
+        box-shadow       150ms ease;
+}
+
+.theme-toggle:hover {
+    border-color: var(--accent);
+    color:        var(--accent);
+    box-shadow:   0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+    transform:    translateY(-1px);
+}
+
+.theme-toggle:active {
+    transform: translateY(0) scale(0.97);
+}
+
+/* Icon inside button */
+.theme-toggle .icon {
+    font-size:  1rem;
+    line-height: 1;
+    transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+html.dark .theme-toggle .icon {
+    transform: rotate(20deg);
+}
+
+/* ── Navbar ───────────────────────────────────────────────── */
+.navbar {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    padding:         1rem 1.5rem;
+    background:      var(--surface);
+    border-bottom:   1px solid var(--border);
+    position:        sticky;
+    top:             0;
+    z-index:         50;
+    backdrop-filter: blur(8px);
+    transition:
+        background-color var(--transition-speed) ease,
+        border-color     var(--transition-speed) ease;
+}
+
+.navbar-brand {
+    font-family:    'Lora', Georgia, serif;
+    font-size:      1.15rem;
+    font-weight:    700;
+    letter-spacing: -0.01em;
+    color:          var(--text);
+    text-decoration: none;
+    transition: color var(--transition-speed) ease;
+}
+
+.navbar-brand span {
+    color: var(--accent);
+}
+
+/* ── Typography ───────────────────────────────────────────── */
+h1 {
+    font-family:    'Lora', Georgia, serif;
+    font-size:      clamp(1.8rem, 4vw, 2.8rem);
+    font-weight:    700;
+    line-height:    1.15;
+    letter-spacing: -0.02em;
+    margin:         0 0 0.5rem;
+    color:          var(--text);
+    transition:     color var(--transition-speed) ease;
+}
+
+h1 .accent { color: var(--accent); }
+
+.subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size:   0.82rem;
+    color:       var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    transition: color var(--transition-speed) ease;
+}
+
+p {
+    font-size:   1rem;
+    line-height: 1.8;
+    color:       var(--muted);
+    margin:      0 0 1rem;
+    transition:  color var(--transition-speed) ease;
+}
+
+/* ── Feature List ─────────────────────────────────────────── */
+.feature-list {
+    list-style:  none;
+    padding:     0;
+    margin:      1.5rem 0 0;
+    display:     grid;
+    gap:         0.75rem;
+}
+
+.feature-list li {
+    display:       flex;
+    align-items:   center;
+    gap:           0.75rem;
+    font-size:     0.92rem;
+    color:         var(--text);
+    padding:       0.65rem 1rem;
+    border-radius: 0.5rem;
+    border:        1px solid var(--border);
+    background:    var(--bg);
+    transition:
+        background-color var(--transition-speed) ease,
+        border-color     var(--transition-speed) ease,
+        transform        150ms ease,
+        box-shadow       150ms ease;
+}
+
+.feature-list li:hover {
+    transform:    translateX(4px);
+    border-color: var(--accent);
+    box-shadow:   0 2px 12px var(--shadow);
+}
+
+.feature-list li .dot {
+    width:            8px;
+    height:           8px;
+    border-radius:    50%;
+    background-color: var(--accent);
+    flex-shrink:      0;
+    transition:       background-color var(--transition-speed) ease;
+}
+
+/* ── Divider ──────────────────────────────────────────────── */
+hr {
+    border:       none;
+    border-top:   1px solid var(--border);
+    margin:       2rem 0;
+    transition:   border-color var(--transition-speed) ease;
+}
+
+/* ── Animate in on load ───────────────────────────────────── */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+    animation: fadeUp 0.5s ease both;
+}
+
+.page-wrapper > * {
+    animation: fadeUp 0.4s ease both;
+}
+.page-wrapper > *:nth-child(1) { animation-delay: 0.05s; }
+.page-wrapper > *:nth-child(2) { animation-delay: 0.12s; }
+.page-wrapper > *:nth-child(3) { animation-delay: 0.20s; }
