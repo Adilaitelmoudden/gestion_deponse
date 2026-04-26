@@ -13,6 +13,11 @@ use App\Http\Controllers\RecurringTransactionController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\AiAssistantController;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminUserProfileController;
+use App\Http\Controllers\Admin\AdminNotificationController;
+use App\Http\Controllers\Admin\AdminExportController;
+use App\Http\Controllers\Admin\AdminSettingsController;
 
 // Routes d'authentification (non protégées)
 Route::middleware(['guest'])->group(function () {
@@ -71,7 +76,31 @@ Route::middleware(['auth'])->group(function () {
 
     // Admin routes
     Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function () {
+
+        // ── Existing ──────────────────────────────────────────────────
         Route::resource('users', UserManagementController::class);
         Route::get('users/{user}/toggle', [UserManagementController::class, 'toggleStatus'])->name('users.toggle');
+
+        // ── 1. Admin Dashboard ────────────────────────────────────────
+        Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+        // ── 2. Admin User Profile ─────────────────────────────────────
+        Route::get('users/{user}/profile', [AdminUserProfileController::class, 'show'])->name('users.profile');
+
+        // ── 3. Admin Notifications ────────────────────────────────────
+        Route::get('notifications/compose',           [AdminNotificationController::class, 'compose'])->name('notifications.compose');
+        Route::post('notifications/send',             [AdminNotificationController::class, 'send'])->name('notifications.send');
+        Route::get('notifications/history',           [AdminNotificationController::class, 'history'])->name('notifications.history');
+        Route::delete('notifications/{notification}', [AdminNotificationController::class, 'destroy'])->name('notifications.destroy');
+
+        // ── 4. Admin Export CSV ───────────────────────────────────────
+        Route::get('export',              [AdminExportController::class, 'index'])->name('export.index');
+        Route::get('export/users',        [AdminExportController::class, 'exportUsers'])->name('export.users');
+        Route::get('export/transactions', [AdminExportController::class, 'exportTransactions'])->name('export.transactions');
+
+        // ── 5. Admin Settings ─────────────────────────────────────────
+        Route::get('settings',        [AdminSettingsController::class, 'index'])->name('settings.index');
+        Route::put('settings',        [AdminSettingsController::class, 'update'])->name('settings.update');
+        Route::post('settings/reset', [AdminSettingsController::class, 'reset'])->name('settings.reset');
     });
 });

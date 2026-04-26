@@ -131,7 +131,7 @@
 
         /* ── Sidebar ── */
         .sidebar {
-            min-height: 100vh;
+            height: 100vh;
             background: linear-gradient(160deg, var(--color-sidebar-from) 0%, var(--color-sidebar-to) 100%);
             position: fixed;
             left: 0; top: 0;
@@ -140,6 +140,7 @@
             box-shadow: 4px 0 20px rgba(0,0,0,0.15);
             display: flex;
             flex-direction: column;
+            overflow: hidden;
             transition: all var(--speed) ease, background var(--speed) ease;
         }
 
@@ -188,6 +189,8 @@
             flex: 1;
             padding: 0 0.75rem;
             overflow-y: auto;
+            flex-wrap: nowrap;
+            flex-direction: column;
         }
 
         .sidebar .nav-link {
@@ -674,9 +677,25 @@
 
             @if(session('user_role') == 'admin')
                 <hr class="sidebar-divider">
+                <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
+                   href="{{ route('admin.dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard Admin
+                </a>
                 <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"
                    href="{{ route('admin.users.index') }}">
                     <i class="fas fa-users-cog"></i> Gestion Users
+                </a>
+                <a class="nav-link {{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}"
+                   href="{{ route('admin.notifications.compose') }}">
+                    <i class="fas fa-bell"></i> Notifications
+                </a>
+                <a class="nav-link {{ request()->routeIs('admin.export.*') ? 'active' : '' }}"
+                   href="{{ route('admin.export.index') }}">
+                    <i class="fas fa-file-csv"></i> Export CSV
+                </a>
+                <a class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}"
+                   href="{{ route('admin.settings.index') }}">
+                    <i class="fas fa-cog"></i> Paramètres
                 </a>
             @endif
         </nav>
