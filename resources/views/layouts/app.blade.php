@@ -666,6 +666,11 @@
                 <span><i class="fas fa-bell"></i> Notifications</span>
                 <span class="badge bg-danger rounded-pill sidebar-notif-badge" id="sidebarNotifBadge" style="display:none">0</span>
             </a>
+            <a class="nav-link {{ request()->routeIs('assistant.*') ? 'active' : '' }}"
+               href="{{ route('assistant.index') }}">
+                <i class="fas fa-robot"></i> Assistant IA
+                <span class="badge ms-1" style="background:#ede9fe;color:#5b21b6;font-size:10px;vertical-align:middle">IA</span>
+            </a>
 
             @if(session('user_role') == 'admin')
                 <hr class="sidebar-divider">
@@ -702,7 +707,7 @@
 
                 {{-- Date --}}
                 <div class="d-none d-sm-block"
-                     style="color: var(--color-text-muted); font-size: 0.82rem;">
+                    style="color: var(--color-text-muted); font-size: 0.82rem;">
                     <i class="fas fa-calendar-alt me-1"></i>
                     {{ now()->format('l d/m/Y') }}
                 </div>
@@ -801,7 +806,9 @@
                 </div>
             @endif
 
+            <div class="page-fade-wrapper">
             @yield('content')
+            </div>
         </main>
 
         {{-- ── FOOTER ───────────────────────────────────────────── --}}
@@ -952,5 +959,179 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 @stack('scripts')
+
+{{-- ══════════════════════════════════════════════════════════
+     NOUVEAU — Système de Toast notifications
+══════════════════════════════════════════════════════════ --}}
+<div id="toast-root" aria-live="polite" aria-atomic="true"></div>
+
+{{-- ══════════════════════════════════════════════════════════
+     NOUVEAU — FAB : ajout rapide de transaction
+══════════════════════════════════════════════════════════ --}}
+<div id="fab-container">
+    <button id="fab-btn" class="fab-main" title="Ajouter une transaction" aria-label="Ajouter une transaction">
+        <i class="fas fa-plus" id="fab-icon"></i>
+    </button>
+    <div id="fab-panel" class="fab-panel" style="display:none">
+        <div class="fab-panel-header">
+            <span class="fw-semibold small">Transaction rapide</span>
+            <button type="button" class="btn-close btn-close-sm" id="fab-close"></button>
+        </div>
+        <form method="POST" action="/transactions" id="fab-form">
+            @csrf
+            <div class="mb-2">
+                <div class="btn-group w-100" role="group">
+                    <input type="radio" class="btn-check" name="type" id="fab-income" value="income" checked>
+                    <label class="btn btn-outline-success btn-sm" for="fab-income"><i class="fas fa-arrow-up me-1"></i>Revenu</label>
+                    <input type="radio" class="btn-check" name="type" id="fab-expense" value="expense">
+                    <label class="btn btn-outline-danger btn-sm" for="fab-expense"><i class="fas fa-arrow-down me-1"></i>Dépense</label>
+                </div>
+            </div>
+            <div class="mb-2">
+                <input type="number" name="amount" class="form-control form-control-sm" placeholder="Montant (DH)" min="0.01" step="0.01" required>
+            </div>
+            <div class="mb-2">
+                <select name="category_id" class="form-select form-select-sm" required id="fab-category-select">
+                    <option value="">Catégorie...</option>
+                </select>
+            </div>
+            <div class="mb-2">
+                <input type="date" name="date" class="form-control form-control-sm" id="fab-date" required>
+            </div>
+            <div class="mb-2">
+                <input type="text" name="description" class="form-control form-control-sm" placeholder="Description (optionnel)">
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm w-100">
+                <i class="fas fa-check me-1"></i>Enregistrer
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+/* ── NOUVEAU : page fade-in ── */
+.page-fade-wrapper{animation:pageFadeIn .22s ease-out}
+@keyframes pageFadeIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+
+/* ── NOUVEAU : toast system ── */
+#toast-root{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem;pointer-events:none}
+.toast-item{pointer-events:auto;min-width:260px;max-width:340px;padding:.7rem 1rem;border-radius:.6rem;font-size:.875rem;font-weight:500;color:#fff;display:flex;align-items:center;gap:.5rem;box-shadow:0 4px 16px rgba(0,0,0,.18);animation:toastIn .22s ease-out}
+.toast-item.toast-success{background:#16a34a}
+.toast-item.toast-danger{background:#dc2626}
+.toast-item.toast-warning{background:#d97706}
+.toast-item.toast-info{background:#0891b2}
+@keyframes toastIn{from{opacity:0;transform:translateX(110%)}to{opacity:1;transform:none}}
+@keyframes toastOut{from{opacity:1;transform:none}to{opacity:0;transform:translateX(110%)}}
+
+/* ── NOUVEAU : FAB ── */
+#fab-container{position:fixed;bottom:1.8rem;right:1.8rem;z-index:1050}
+.fab-main{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);border:none;color:#fff;font-size:1.1rem;box-shadow:0 4px 16px rgba(79,70,229,.4);cursor:pointer;transition:transform .15s ease,box-shadow .15s ease;display:flex;align-items:center;justify-content:center}
+.fab-main:hover{transform:scale(1.08);box-shadow:0 6px 24px rgba(79,70,229,.5)}
+.fab-main .fas{transition:transform .2s ease}
+.fab-panel{position:absolute;bottom:64px;right:0;width:290px;background:var(--color-card-bg,#fff);border:1px solid var(--color-card-border,#e2e8f0);border-radius:.8rem;box-shadow:0 8px 32px rgba(0,0,0,.14);padding:1rem;animation:panelIn .18s ease-out}
+@keyframes panelIn{from{opacity:0;transform:scale(.92) translateY(8px)}to{opacity:1;transform:none}}
+.fab-panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+
+/* ── NOUVEAU : card-stats hover lift ── */
+.card-stats{transition:transform .17s ease,box-shadow .17s ease}
+.card-stats:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.10)}
+
+/* ── NOUVEAU : sidebar nav link slide ── */
+.nav-link{transition:padding-left .14s ease,background .14s ease!important}
+</style>
+
+<script>
+// ══════════════════════════════════════════════════════
+// NOUVEAU — Toast system
+// ══════════════════════════════════════════════════════
+function showToast(msg, type, duration) {
+    type = type || 'success';
+    duration = duration || 4000;
+    var root = document.getElementById('toast-root');
+    if (!root) return;
+    var t = document.createElement('div');
+    t.className = 'toast-item toast-' + type;
+    var icons = {success:'fa-check-circle',danger:'fa-times-circle',warning:'fa-exclamation-triangle',info:'fa-info-circle'};
+    t.innerHTML = '<i class="fas ' + (icons[type]||'fa-info-circle') + ' fa-sm"></i><span>' + msg + '</span>';
+    root.appendChild(t);
+    setTimeout(function() {
+        t.style.animation = 'toastOut .2s ease-in forwards';
+        setTimeout(function() { if(t.parentNode) t.parentNode.removeChild(t); }, 200);
+    }, duration);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Flash messages as toasts
+    @if(session('success'))
+    showToast("{{ addslashes(session('success')) }}", 'success');
+    @endif
+    @if(session('error'))
+    showToast("{{ addslashes(session('error')) }}", 'danger');
+    @endif
+    @if(session('warning'))
+    showToast("{{ addslashes(session('warning')) }}", 'warning');
+    @endif
+    @if(session('info'))
+    showToast("{{ addslashes(session('info')) }}", 'info');
+    @endif
+
+    // Set today's date on FAB date input
+    var fabDate = document.getElementById('fab-date');
+    if (fabDate) {
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = String(today.getMonth()+1).padStart(2,'0');
+        var dd = String(today.getDate()).padStart(2,'0');
+        fabDate.value = yyyy+'-'+mm+'-'+dd;
+    }
+
+    // ══════════════════════════════════════════════════
+    // NOUVEAU — FAB toggle
+    // ══════════════════════════════════════════════════
+    var fabBtn   = document.getElementById('fab-btn');
+    var fabPanel = document.getElementById('fab-panel');
+    var fabClose = document.getElementById('fab-close');
+    var fabIcon  = document.getElementById('fab-icon');
+
+    if (fabBtn && fabPanel) {
+        fabBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var isOpen = fabPanel.style.display !== 'none';
+            fabPanel.style.display = isOpen ? 'none' : 'block';
+            fabIcon.className = isOpen ? 'fas fa-plus' : 'fas fa-times';
+        });
+        if (fabClose) {
+            fabClose.addEventListener('click', function() {
+                fabPanel.style.display = 'none';
+                fabIcon.className = 'fas fa-plus';
+            });
+        }
+        document.addEventListener('click', function(e) {
+            var cont = document.getElementById('fab-container');
+            if (cont && !cont.contains(e.target)) {
+                fabPanel.style.display = 'none';
+                fabIcon.className = 'fas fa-plus';
+            }
+        });
+    }
+
+    // ══════════════════════════════════════════════════
+    // NOUVEAU — Load categories for FAB via AJAX
+    // ══════════════════════════════════════════════════
+    var fabSel = document.getElementById('fab-category-select');
+    if (fabSel && typeof window.axios !== 'undefined') {
+        window.axios.get('/categories/json').then(function(res) {
+            if (Array.isArray(res.data)) {
+                res.data.forEach(function(cat) {
+                    var opt = document.createElement('option');
+                    opt.value = cat.id;
+                    opt.textContent = cat.name;
+                    fabSel.appendChild(opt);
+                });
+            }
+        }).catch(function(){});
+    }
+});
+</script>
 </body>
 </html>

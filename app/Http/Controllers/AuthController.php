@@ -53,6 +53,10 @@ class AuthController extends Controller
         // Mettre à jour dernière connexion
         $user->update(['last_login_at' => now()]);
 
+        if ($user->role === 'admin') {
+            return redirect('/admin/users')->with('success', 'Bienvenue Admin ' . $user->name . ' !');
+        }
+
         return redirect()->route('dashboard')->with('success', 'Bienvenue ' . $user->name . ' !');
     }
 

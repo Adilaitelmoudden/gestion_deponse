@@ -49,7 +49,7 @@
                 <!-- Deposit form -->
                 <hr>
                 <h6><i class="fas fa-plus-circle text-success"></i> Verser de l'argent</h6>
-                <form method="POST" action="{{ route('savings-goals.deposit', $savingsGoal) }}" class="mb-3">
+                <form method="POST" action="{{ route('savings_goals.deposit', $savingsGoal) }}" class="mb-3">
                     @csrf
                     <div class="input-group mb-2">
                         <input type="number" name="amount" step="0.01" min="0.01" class="form-control"
@@ -63,7 +63,7 @@
                 <!-- Withdraw form -->
                 @if($savingsGoal->current_amount > 0)
                 <h6><i class="fas fa-minus-circle text-warning"></i> Retirer de l'argent</h6>
-                <form method="POST" action="{{ route('savings-goals.withdraw', $savingsGoal) }}">
+                <form method="POST" action="{{ route('savings_goals.withdraw', $savingsGoal) }}">
                     @csrf
                     <div class="input-group mb-2">
                         <input type="number" name="amount" step="0.01" min="0.01"
@@ -121,7 +121,7 @@
     </div>
 </div>
 
-<a href="{{ route('savings-goals.index') }}" class="btn btn-secondary">
+<a href="{{ route('savings_goals.index') }}" class="btn btn-secondary">
     <i class="fas fa-arrow-left"></i> Retour
 </a>
 @endsection

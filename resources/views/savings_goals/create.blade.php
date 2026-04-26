@@ -7,7 +7,7 @@
 <div class="card">
     <div class="card-header"><h5><i class="fas fa-plus"></i> Nouvel Objectif d'Épargne</h5></div>
     <div class="card-body">
-        <form method="POST" action="{{ route('savings-goals.store') }}">
+        <form method="POST" action="{{ route('savings_goals.store') }}">
             @csrf
             <div class="mb-3">
                 <label class="form-label">Nom de l'objectif *</label>
@@ -42,7 +42,7 @@
             </div>
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Créer</button>
-                <a href="{{ route('savings-goals.index') }}" class="btn btn-secondary">Annuler</a>
+                <a href="{{ route('savings_goals.index') }}" class="btn btn-secondary">Annuler</a>
             </div>
         </form>
     </div>

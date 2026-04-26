@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SavingsGoal extends Model
 {
-    protected $fillable = ['user_id', 'name', 'target_amount', 'current_amount', 'deadline'];
+    protected $fillable = ['user_id', 'name', 'target_amount', 'current_amount', 'deadline', 'description', 'history'];
 
     protected $casts = [
         'deadline' => 'date',

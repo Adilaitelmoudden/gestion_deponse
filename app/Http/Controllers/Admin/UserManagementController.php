@@ -54,12 +54,16 @@ class UserManagementController extends Controller
             'role' => 'required|in:admin,user',
         ]);
 
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'role' => $request->role,
-            'is_active' => $request->has('is_active')
-        ]);
+        $data = [
+            'name'      => $request->name,
+            'email'     => $request->email,
+            'role'      => $request->role,
+            'is_active' => $request->input('is_active', 0),
+        ];
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+        $user->update($data);
 
         return redirect()->route('admin.users.index')
             ->with('success', 'Utilisateur modifié avec succès.');

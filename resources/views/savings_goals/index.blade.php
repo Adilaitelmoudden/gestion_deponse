@@ -35,7 +35,7 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5><i class="fas fa-piggy-bank"></i> Objectifs d'Épargne</h5>
-        <a href="{{ route('savings-goals.create') }}" class="btn btn-primary">
+        <a href="{{ route('savings_goals.create') }}" class="btn btn-primary">
             <i class="fas fa-plus"></i> Nouvel Objectif
         </a>
     </div>
@@ -44,7 +44,7 @@
             <div class="text-center py-5">
                 <i class="fas fa-piggy-bank fa-4x text-muted mb-3 d-block"></i>
                 <h5 class="text-muted">Aucun objectif d'épargne</h5>
-                <a href="{{ route('savings-goals.create') }}" class="btn btn-primary mt-2">
+                <a href="{{ route('savings_goals.create') }}" class="btn btn-primary mt-2">
                     Créer mon premier objectif
                 </a>
             </div>
@@ -64,13 +64,13 @@
                                     {{ $goal->name }}
                                 </h6>
                                 <div>
-                                    <a href="{{ route('savings-goals.show', $goal) }}" class="btn btn-sm btn-info">
+                                    <a href="{{ route('savings_goals.show', $goal) }}" class="btn btn-sm btn-info">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{{ route('savings-goals.edit', $goal) }}" class="btn btn-sm btn-warning">
+                                    <a href="{{ route('savings_goals.edit', $goal) }}" class="btn btn-sm btn-warning">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <form action="{{ route('savings-goals.destroy', $goal) }}" method="POST" class="d-inline"
+                                    <form action="{{ route('savings_goals.destroy', $goal) }}" method="POST" class="d-inline"
                                           onsubmit="return confirm('Supprimer cet objectif ?')">
                                         @csrf @method('DELETE')
                                         <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>

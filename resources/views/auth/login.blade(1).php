@@ -1,0 +1,52 @@
+@extends('layouts.auth')
+
+@section('title', 'Connexion')
+
+@section('content')
+<div class="card auth-card">
+    <div class="auth-header">
+        <i class="fas fa-coins fa-3x mb-3"></i>
+        <h3>Gestion des Dépenses</h3>
+        <p class="mb-0">Connectez-vous à votre compte</p>
+    </div>
+    <div class="card-body p-4">
+        <form action="{{ route('login') }}" method="POST">
+            @csrf
+            
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                    <input type="email" name="email" id="email" 
+                           class="form-control @error('email') is-invalid @enderror" 
+                           value="{{ old('email') }}" required autofocus>
+                </div>
+                @error('email')
+                    <div class="text-danger small mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+            
+            <div class="mb-3">
+                <label for="password" class="form-label">Mot de passe</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                    <input type="password" name="password" id="password" 
+                           class="form-control @error('password') is-invalid @enderror" required>
+                </div>
+                @error('password')
+                    <div class="text-danger small mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-100 mb-3">
+                <i class="fas fa-sign-in-alt"></i> Se connecter
+            </button>
+            
+            <p class="text-center mb-0">
+                Pas encore de compte ? 
+                <a href="{{ route('register') }}">S'inscrire</a>
+            </p>
+        </form>
+    </div>
+</div>
+@endsection

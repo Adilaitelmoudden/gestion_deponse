@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Schema;
  * Add transaction_count to categories for fast stats.
  * Add is_favourite flag to transactions.
  */
-class AddFavouriteToTransactionsAndStatsToCategories extends Migration
+class AddFavouriteToTransactions extends Migration
 {
     // In the migration file
     public function up()

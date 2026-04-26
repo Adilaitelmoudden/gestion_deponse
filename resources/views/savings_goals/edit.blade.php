@@ -7,7 +7,7 @@
 <div class="card">
     <div class="card-header"><h5><i class="fas fa-edit"></i> Modifier l'Objectif</h5></div>
     <div class="card-body">
-        <form method="POST" action="{{ route('savings-goals.update', $savingsGoal) }}">
+        <form method="POST" action="{{ route('savings_goals.update', $savingsGoal) }}">
             @csrf @method('PUT')
             <div class="mb-3">
                 <label class="form-label">Nom de l'objectif *</label>
@@ -33,7 +33,7 @@
             </div>
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Mettre à jour</button>
-                <a href="{{ route('savings-goals.index') }}" class="btn btn-secondary">Annuler</a>
+                <a href="{{ route('savings_goals.index') }}" class="btn btn-secondary">Annuler</a>
             </div>
         </form>
     </div>

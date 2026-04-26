@@ -5,6 +5,43 @@
 
 @section('content')
 
+{{-- ══════════════════════════════════════════════════════════
+     NOUVEAU — Barre d'actions rapides
+══════════════════════════════════════════════════════════ --}}
+<div class="d-flex gap-2 mb-4 flex-wrap quick-actions-bar">
+    <a href="{{ route('transactions.create') }}" class="btn btn-success btn-sm quick-action-btn">
+        <i class="fas fa-plus me-1"></i> Revenu
+    </a>
+    <a href="{{ route('transactions.create') }}" class="btn btn-danger btn-sm quick-action-btn">
+        <i class="fas fa-minus me-1"></i> Dépense
+    </a>
+    <a href="{{ route('budgets.create') }}" class="btn btn-warning btn-sm quick-action-btn">
+        <i class="fas fa-bullseye me-1"></i> Budget
+    </a>
+    <a href="{{ route('transactions.index') }}?export=csv" class="btn btn-outline-secondary btn-sm quick-action-btn">
+        <i class="fas fa-download me-1"></i> Exporter CSV
+    </a>
+    <a href="{{ route('savings_goals.index') }}" class="btn btn-outline-info btn-sm quick-action-btn">
+        <i class="fas fa-piggy-bank me-1"></i> Objectifs
+    </a>
+</div>
+
+{{-- ══════════════════════════════════════════════════════════
+     NOUVEAU — Insights intelligents
+══════════════════════════════════════════════════════════ --}}
+@if(!empty($insights))
+<div class="row mb-4 g-2">
+    @foreach($insights as $insight)
+    <div class="col-md-{{ count($insights) == 1 ? 12 : (count($insights) == 2 ? 6 : 4) }}">
+        <div class="alert alert-{{ $insight['type'] }} mb-0 d-flex align-items-center gap-2 insight-card py-2 px-3">
+            <i class="fas {{ $insight['icon'] }} fa-sm flex-shrink-0"></i>
+            <span class="small">{{ $insight['text'] }}</span>
+        </div>
+    </div>
+    @endforeach
+</div>
+@endif
+
 {{-- ── Stats Cards ──────────────────────────────────────── --}}
 <div class="row mb-4">
     <div class="col-md-3 mb-3">
@@ -13,7 +50,11 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <div class="text-muted small mb-1">Revenus ce mois</div>
-                        <div class="fs-3 fw-bold text-success">{{ number_format($totalIncome, 2) }} DH</div>
+                        <div class="fs-3 fw-bold text-success">
+                            <span class="count-up" data-target="{{ $totalIncome }}">{{ number_format($totalIncome, 2) }}</span> DH
+                        </div>
+                        {{-- NOUVEAU sparkline --}}
+                        <canvas class="sparkline mt-2" data-values="{{ json_encode(array_column($last7Days, 'income')) }}" data-color="#22c55e" height="36" style="width:100%;max-height:36px"></canvas>
                     </div>
                     <div class="rounded-circle d-flex align-items-center justify-content-center"
                          style="width:44px;height:44px;background:#22c55e20">
@@ -29,7 +70,10 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <div class="text-muted small mb-1">Dépenses ce mois</div>
-                        <div class="fs-3 fw-bold text-danger">{{ number_format($totalExpense, 2) }} DH</div>
+                        <div class="fs-3 fw-bold text-danger">
+                            <span class="count-up" data-target="{{ $totalExpense }}">{{ number_format($totalExpense, 2) }}</span> DH
+                        </div>
+                        <canvas class="sparkline mt-2" data-values="{{ json_encode(array_column($last7Days, 'expense')) }}" data-color="#ef4444" height="36" style="width:100%;max-height:36px"></canvas>
                     </div>
                     <div class="rounded-circle d-flex align-items-center justify-content-center"
                          style="width:44px;height:44px;background:#ef444420">
@@ -45,19 +89,26 @@
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <div class="text-muted small mb-1">Solde</div>
-                        <div class="fs-3 fw-bold {{ $balance >= 0 ? 'text-primary' : 'text-warning' }}">
-                            {{ number_format($balance, 2) }} DH
+                        <div class="fs-3 fw-bold {{ $balance >= 0 ? 'text-primary' : 'text-danger' }}">
+                            <span class="count-up" data-target="{{ $balance }}">{{ number_format($balance, 2) }}</span> DH
+                        </div>
+                        <div class="small mt-1">
+                            @if($balance >= 0)
+                                <i class="fas fa-check-circle text-success me-1"></i><span class="text-success">Positif</span>
+                            @else
+                                <span class="badge bg-danger py-1 px-2"><i class="fas fa-exclamation-triangle me-1"></i>Déficit !</span>
+                            @endif
                         </div>
                     </div>
                     <div class="rounded-circle d-flex align-items-center justify-content-center"
-                         style="width:44px;height:44px;background:{{ $balance >= 0 ? '#4f46e520' : '#f59e0b20' }}">
-                        <i class="fas fa-wallet" style="color:{{ $balance >= 0 ? '#4f46e5' : '#f59e0b' }}"></i>
+                         style="width:44px;height:44px;background:{{ $balance >= 0 ? '#4f46e520' : '#ef444420' }}">
+                        <i class="fas fa-wallet" style="color:{{ $balance >= 0 ? '#4f46e5' : '#ef4444' }}"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    {{-- NEW: Savings rate --}}
+    {{-- Taux d'épargne --}}
     <div class="col-md-3 mb-3">
         @php $savingsRate = $totalIncome > 0 ? round(($balance / $totalIncome) * 100, 1) : 0; @endphp
         <div class="card card-stats h-100" style="border-top: 3px solid #06b6d4">
@@ -73,6 +124,75 @@
                         <i class="fas fa-piggy-bank" style="color:#06b6d4"></i>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ══════════════════════════════════════════════════════════
+     NOUVEAU — Score de santé financière + Factures à venir
+══════════════════════════════════════════════════════════ --}}
+<div class="row mb-4">
+    {{-- Score de santé --}}
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-heart-pulse me-2 text-danger"></i>Santé financière</h6>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center py-4">
+                @php
+                    $hColor = $healthScore >= 70 ? '#22c55e' : ($healthScore >= 40 ? '#f59e0b' : '#ef4444');
+                    $hLabel = $healthScore >= 70 ? 'Excellente' : ($healthScore >= 40 ? 'Correcte' : 'À améliorer');
+                    $circumference = 2 * pi() * 40;
+                    $dash = ($healthScore / 100) * $circumference;
+                @endphp
+                <svg width="110" height="110" viewBox="0 0 100 100" class="health-gauge">
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="#e2e8f0" stroke-width="9"/>
+                    <circle cx="50" cy="50" r="40" fill="none"
+                        stroke="{{ $hColor }}"
+                        stroke-width="9"
+                        stroke-dasharray="{{ $dash }} {{ $circumference }}"
+                        stroke-dashoffset="0"
+                        stroke-linecap="round"
+                        transform="rotate(-90 50 50)"
+                        class="gauge-arc"/>
+                    <text x="50" y="46" text-anchor="middle" font-size="20" font-weight="bold" fill="{{ $hColor }}">{{ $healthScore }}</text>
+                    <text x="50" y="60" text-anchor="middle" font-size="9" fill="#94a3b8">/100</text>
+                </svg>
+                <div class="mt-2 fw-semibold" style="color:{{ $hColor }}">{{ $hLabel }}</div>
+                <div class="small text-muted text-center mt-1">Basé sur épargne, budgets<br>et objectifs actifs</div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Factures à venir --}}
+    <div class="col-md-8 mb-3">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="fas fa-calendar-alt me-2 text-info"></i>Factures à venir — 7 jours</h6>
+                @if($upcomingBillsTotal > 0)
+                <span class="badge bg-info text-white">{{ number_format($upcomingBillsTotal, 2) }} DH</span>
+                @endif
+            </div>
+            <div class="card-body p-0">
+                @forelse($upcomingBills as $bill)
+                <div class="d-flex align-items-center px-3 py-2 {{ !$loop->last ? 'border-bottom' : '' }} upcoming-bill-row">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0"
+                         style="width:34px;height:34px;background:{{ ($bill->category->color ?? '#888') }}20">
+                        <i class="{{ $bill->category->icon ?? 'fas fa-repeat' }} fa-sm" style="color:{{ $bill->category->color ?? '#888' }}"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold small">{{ $bill->name }}</div>
+                        <div class="text-muted" style="font-size:11px">{{ \Carbon\Carbon::parse($bill->next_due_date)->format('d/m/Y') }}</div>
+                    </div>
+                    <div class="text-danger fw-bold small">{{ number_format($bill->amount, 2) }} DH</div>
+                </div>
+                @empty
+                <div class="text-center py-4 text-muted">
+                    <i class="fas fa-calendar-check fa-2x mb-2 d-block text-success"></i>
+                    <span class="small">Aucune facture dans les 7 prochains jours</span>
+                </div>
+                @endforelse
             </div>
         </div>
     </div>
@@ -116,8 +236,11 @@
         <div class="row">
         @foreach($budgets as $budget)
             @php
-                $pct = min(100, $budget->percentage);
+                $pct   = min(100, $budget->percentage);
                 $color = $pct >= 100 ? 'danger' : ($pct >= 80 ? 'warning' : 'success');
+                // NOUVEAU — burn rate icon
+                $burnIcon  = $budget->burnRate > 1.2 ? '🔴' : ($budget->burnRate < 0.8 ? '🟢' : '🟡');
+                $burnLabel = $budget->burnRate > 1.2 ? 'Rythme trop rapide' : ($budget->burnRate < 0.8 ? 'Bonne cadence' : 'Cadence normale');
             @endphp
             <div class="col-md-6 mb-3">
                 <div class="d-flex justify-content-between mb-1">
@@ -125,6 +248,8 @@
                     <span class="small text-muted">
                         {{ number_format($budget->spent, 2) }} / {{ number_format($budget->amount, 2) }} DH
                         <span class="badge bg-{{ $color }} ms-1">{{ number_format($budget->percentage, 0) }}%</span>
+                        {{-- NOUVEAU burn rate --}}
+                        <span title="{{ $burnLabel }}" style="cursor:help">{{ $burnIcon }}</span>
                     </span>
                 </div>
                 <div class="progress" style="height:8px">
@@ -190,7 +315,7 @@
                 </thead>
                 <tbody>
                     @forelse($recentTransactions as $transaction)
-                    <tr>
+                    <tr class="transaction-row">
                         <td>{{ $transaction->date->format('d/m/Y') }}</td>
                         <td class="text-truncate" style="max-width:200px">{{ $transaction->description ?: '—' }}</td>
                         <td>
@@ -216,13 +341,86 @@
 
 @push('styles')
 <style>
-.badge-category { display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:.82rem;font-weight:500; }
+/* ── Badge catégorie ── */
+.badge-category{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:.82rem;font-weight:500}
+
+/* ── NOUVEAU : animations hover cartes ── */
+.card-stats{transition:transform .18s ease,box-shadow .18s ease}
+.card-stats:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.10)}
+
+/* ── NOUVEAU : hover lignes tableau ── */
+.table tbody tr{transition:background-color .1s ease}
+
+/* ── NOUVEAU : fade-in page ── */
+.dashboard-fade{animation:dashFadeIn .25s ease-out}
+@keyframes dashFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ── NOUVEAU : boutons d'actions rapides ── */
+.quick-action-btn{transition:transform .12s ease,box-shadow .12s ease}
+.quick-action-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.12)}
+
+/* ── NOUVEAU : insight cards ── */
+.insight-card{border-radius:.6rem;font-size:.85rem}
+
+/* ── NOUVEAU : jauge SVG animation ── */
+.gauge-arc{transition:stroke-dasharray .8s cubic-bezier(.4,0,.2,1)}
+
+/* ── NOUVEAU : lignes factures à venir ── */
+.upcoming-bill-row{transition:background .12s ease}
+.upcoming-bill-row:hover{background:var(--color-table-row-hover,#f8faff)}
 </style>
 @endpush
 
 @push('scripts')
 <script>
-// ── Doughnut: expenses by category
+// ══════════════════════════════════════════════════════
+// NOUVEAU — Count-up animation sur les chiffres
+// ══════════════════════════════════════════════════════
+document.querySelectorAll('.count-up').forEach(el => {
+    const target = parseFloat(el.dataset.target) || 0;
+    const start  = performance.now();
+    const dur    = 900;
+    function step(now) {
+        const p = Math.min((now - start) / dur, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        el.textContent = (target * ease).toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2});
+        if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+});
+
+// ══════════════════════════════════════════════════════
+// NOUVEAU — Sparklines 7 jours (Chart.js déjà chargé)
+// ══════════════════════════════════════════════════════
+document.querySelectorAll('.sparkline').forEach(canvas => {
+    const values = JSON.parse(canvas.dataset.values || '[]');
+    const color  = canvas.dataset.color || '#888';
+    new Chart(canvas, {
+        type: 'line',
+        data: {
+            labels: values.map((_, i) => i),
+            datasets: [{
+                data: values,
+                borderColor: color,
+                backgroundColor: color + '22',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                borderWidth: 1.5
+            }]
+        },
+        options: {
+            responsive: false,
+            animation: false,
+            plugins: { legend: { display: false }, tooltip: { enabled: false } },
+            scales: { x: { display: false }, y: { display: false } }
+        }
+    });
+});
+
+// ══════════════════════════════════════════════════════
+// Doughnut : dépenses par catégorie (identique à l'original)
+// ══════════════════════════════════════════════════════
 @if($expensesByCategory->count())
 new Chart(document.getElementById('expensesChart'), {
     type: 'doughnut',
@@ -246,8 +444,10 @@ new Chart(document.getElementById('expensesChart'), {
 });
 @endif
 
-// ── Bar/Line: monthly evolution
-const months = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+// ══════════════════════════════════════════════════════
+// Bar + Line : évolution mensuelle (identique à l'original)
+// ══════════════════════════════════════════════════════
+const months   = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
 const incomes  = {!! json_encode(array_column($monthlyStats, 'income')) !!};
 const expenses = {!! json_encode(array_column($monthlyStats, 'expense')) !!};
 
@@ -286,12 +486,8 @@ new Chart(document.getElementById('monthlyChart'), {
     options: {
         responsive: true,
         interaction: { mode: 'index', intersect: false },
-        plugins: {
-            legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } }
-        },
-        scales: {
-            y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString('fr-FR') + ' DH' } }
-        }
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } } },
+        scales: { y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString('fr-FR') + ' DH' } } }
     }
 });
 </script>

@@ -8,6 +8,10 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\SavingsGoalController;
+use App\Http\Controllers\RecurringTransactionController;
+use App\Http\Controllers\TagController;
+use App\Http\Controllers\AiAssistantController;
 use App\Http\Controllers\Admin\UserManagementController;
 
 // Routes d'authentification (non protégées)
@@ -33,7 +37,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('transactions', TransactionController::class);
     Route::post('transactions/bulk-delete', [TransactionController::class, 'bulkDelete'])->name('transactions.bulk-delete');
 
-    // Categories
+    // Categories — json AVANT resource pour éviter conflit avec {category}
+    Route::get('categories/json', [CategoryController::class, 'jsonList'])->name('categories.json');
     Route::resource('categories', CategoryController::class);
 
     // Budgets
@@ -48,6 +53,21 @@ Route::middleware(['auth'])->group(function () {
     Route::post('notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::delete('notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::get('api/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
+
+    // Savings Goals
+    Route::resource('savings_goals', SavingsGoalController::class);
+    Route::post('savings_goals/{savings_goal}/deposit', [SavingsGoalController::class, 'deposit'])->name('savings_goals.deposit');
+    Route::post('savings_goals/{savings_goal}/withdraw', [SavingsGoalController::class, 'withdraw'])->name('savings_goals.withdraw');
+
+    // Recurring Transactions
+    Route::resource('recurring_transactions', RecurringTransactionController::class);
+
+    // AI Assistant
+    Route::get('assistant', [AiAssistantController::class, 'index'])->name('assistant.index');
+    Route::post('assistant/chat', [AiAssistantController::class, 'chat'])->name('assistant.chat');
+
+    // Tags
+    Route::resource('tags', TagController::class);
 
     // Admin routes
     Route::prefix('admin')->name('admin.')->middleware(['admin'])->group(function () {
