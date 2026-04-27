@@ -70,11 +70,12 @@ class AuthController extends Controller
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'user',
-            'is_active' => true
+            'name'      => $request->name,
+            'email'     => $request->email,
+            'password'  => Hash::make($request->password),
+            'role'      => 'user',
+            'is_active' => true,
+            'balance'   => 0,   // Solde initial à 0
         ]);
 
         // Connexion automatique après inscription

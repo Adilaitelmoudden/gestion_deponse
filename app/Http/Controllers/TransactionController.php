@@ -93,7 +93,19 @@ class TransactionController extends Controller
             'type'        => 'required|in:income,expense',
         ]);
 
-        $validated['user_id'] = session('user_id');
+        $userId = session('user_id');
+        $validated['user_id'] = $userId;
+
+        // ✅ SOLDE : bloquer si dépense dépasse le solde disponible
+        if ($validated['type'] === 'expense') {
+            $user = \App\Models\User::find($userId);
+            if ($user && !$user->canAfford((float) $validated['amount'])) {
+                return back()
+                    ->withInput()
+                    ->with('error', '❌ Opération bloquée : solde insuffisant. Solde disponible : ' . number_format($user->getComputedBalance(), 2) . ' DH.');
+            }
+        }
+
         Transaction::create($validated);
 
         // NEW: budget alert notification
@@ -139,6 +151,29 @@ class TransactionController extends Controller
             'type'        => 'required|in:income,expense',
         ]);
 
+        // ✅ SOLDE : vérifier après update si type=expense ou si type change vers expense
+        $newType = $validated['type'];
+        $newAmount = (float) $validated['amount'];
+        $oldType = $transaction->type;
+        $oldAmount = (float) $transaction->amount;
+
+        if ($newType === 'expense') {
+            $userId = session('user_id');
+            $user = \App\Models\User::find($userId);
+            // Simuler le solde sans cette transaction puis avec la nouvelle valeur
+            $balanceWithoutThis = $user->getComputedBalance();
+            if ($oldType === 'expense') {
+                $balanceWithoutThis += $oldAmount; // annuler l'ancienne dépense
+            } elseif ($oldType === 'income') {
+                $balanceWithoutThis -= $oldAmount; // annuler l'ancien revenu
+            }
+            if (($balanceWithoutThis - $newAmount) < 0) {
+                return back()
+                    ->withInput()
+                    ->with('error', '❌ Modification bloquée : solde insuffisant pour cette dépense.');
+            }
+        }
+
         $transaction->update($validated);
 
         return redirect()->route('transactions.index')
@@ -149,6 +184,16 @@ class TransactionController extends Controller
     {
         if ($transaction->user_id != session('user_id')) {
             abort(403, 'Accès non autorisé.');
+        }
+
+        // ✅ SOLDE : bloquer suppression d'un revenu si ça rend le solde négatif
+        if ($transaction->type === 'income') {
+            $user = \App\Models\User::find(session('user_id'));
+            $balanceAfter = $user->getComputedBalance() - (float) $transaction->amount;
+            if ($balanceAfter < 0) {
+                return redirect()->route('transactions.index')
+                    ->with('error', '❌ Suppression bloquée : supprimer ce revenu rendrait votre solde négatif (' . number_format($balanceAfter, 2) . ' DH).');
+            }
         }
 
         $transaction->delete();
@@ -165,6 +210,22 @@ class TransactionController extends Controller
         ]);
 
         $userId = session('user_id');
+
+        // ✅ SOLDE : vérifier si la suppression groupée rendrait le solde négatif
+        $incomeToRemove = Transaction::whereIn('id', $request->ids)
+            ->where('user_id', $userId)
+            ->where('type', 'income')
+            ->sum('amount');
+
+        if ($incomeToRemove > 0) {
+            $user = \App\Models\User::find($userId);
+            $balanceAfter = $user->getComputedBalance() - (float) $incomeToRemove;
+            if ($balanceAfter < 0) {
+                return redirect()->route('transactions.index')
+                    ->with('error', '❌ Suppression groupée bloquée : ces transactions contiennent des revenus qui rendraient votre solde négatif (' . number_format($balanceAfter, 2) . ' DH).');
+            }
+        }
+
         Transaction::whereIn('id', $request->ids)
             ->where('user_id', $userId)
             ->delete();

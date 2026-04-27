@@ -45,19 +45,22 @@
                         <td>{{ $user->transactions_count }}</td>
                         <td>{{ $user->created_at->format('d/m/Y') }}</td>
                         <td>
-                            <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-warning">
+                            <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-warning" title="Modifier">
                                 <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{{ route('admin.users.profile', $user) }}" class="btn btn-sm btn-info" title="Voir profil & statistiques">
+                                <i class="fas fa-eye"></i>
                             </a>
                             @if($user->id != session('user_id'))
                             <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cet utilisateur ?')">
+                                <button type="submit" class="btn btn-sm btn-danger" title="Supprimer" onclick="return confirm('Supprimer cet utilisateur ?')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
                             @endif
-                            <a href="{{ route('admin.users.toggle', $user) }}" class="btn btn-sm {{ $user->is_active ? 'btn-secondary' : 'btn-success' }}">
+                            <a href="{{ route('admin.users.toggle', $user) }}" class="btn btn-sm {{ $user->is_active ? 'btn-secondary' : 'btn-success' }}" title="{{ $user->is_active ? 'Désactiver' : 'Activer' }}">
                                 <i class="fas {{ $user->is_active ? 'fa-ban' : 'fa-check' }}"></i>
                             </a>
                         </td>
