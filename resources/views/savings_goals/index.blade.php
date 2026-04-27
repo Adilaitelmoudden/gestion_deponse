@@ -10,7 +10,7 @@
         <div class="card text-white" style="background: linear-gradient(135deg,#667eea,#764ba2);">
             <div class="card-body">
                 <h6><i class="fas fa-piggy-bank"></i> Total Épargné</h6>
-                <h3>{{ number_format($totalSaved, 2) }} DH</h3>
+                <h3>{{ number_format($totalSaved, 2) }} {{ $currency }}</h3>
             </div>
         </div>
     </div>
@@ -18,7 +18,7 @@
         <div class="card text-white" style="background: linear-gradient(135deg,#f093fb,#f5576c);">
             <div class="card-body">
                 <h6><i class="fas fa-bullseye"></i> Total Ciblé</h6>
-                <h3>{{ number_format($totalTargeted, 2) }} DH</h3>
+                <h3>{{ number_format($totalTargeted, 2) }} {{ $currency }}</h3>
             </div>
         </div>
     </div>
@@ -80,8 +80,8 @@
 
                             <div class="mb-2">
                                 <div class="d-flex justify-content-between">
-                                    <small>{{ number_format($goal->current_amount, 2) }} DH</small>
-                                    <small>{{ number_format($goal->target_amount, 2) }} DH</small>
+                                    <small>{{ number_format($goal->current_amount, 2) }} {{ $currency }}</small>
+                                    <small>{{ number_format($goal->target_amount, 2) }} {{ $currency }}</small>
                                 </div>
                                 <div class="progress" style="height: 12px;">
                                     <div class="progress-bar {{ $goal->is_completed ? 'bg-success' : 'bg-primary' }}"
@@ -93,7 +93,7 @@
 
                             <div class="d-flex justify-content-between align-items-center">
                                 <small class="text-muted">
-                                    Restant: <strong>{{ number_format($goal->remaining, 2) }} DH</strong>
+                                    Restant: <strong>{{ number_format($goal->remaining, 2) }} {{ $currency }}</strong>
                                 </small>
                                 @if($goal->deadline)
                                     <small class="{{ isset($goal->days_left) && $goal->days_left < 30 ? 'text-danger' : 'text-muted' }}">

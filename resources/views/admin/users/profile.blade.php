@@ -79,7 +79,7 @@
                 <div class="card card-stats text-center" style="border-top:4px solid #16a34a">
                     <div class="card-body">
                         <div class="small mb-1" style="color:var(--color-text-muted)">Revenus totaux</div>
-                        <div class="fw-bold fs-5 text-success">{{ number_format($totalIncome, 2) }} DH</div>
+                        <div class="fw-bold fs-5 text-success">{{ number_format($totalIncome, 2) }} {{ $currency }}</div>
                     </div>
                 </div>
             </div>
@@ -87,7 +87,7 @@
                 <div class="card card-stats text-center" style="border-top:4px solid #dc2626">
                     <div class="card-body">
                         <div class="small mb-1" style="color:var(--color-text-muted)">Dépenses totales</div>
-                        <div class="fw-bold fs-5 text-danger">{{ number_format($totalExpense, 2) }} DH</div>
+                        <div class="fw-bold fs-5 text-danger">{{ number_format($totalExpense, 2) }} {{ $currency }}</div>
                     </div>
                 </div>
             </div>
@@ -96,7 +96,7 @@
                     <div class="card-body">
                         <div class="small mb-1" style="color:var(--color-text-muted)">Solde</div>
                         <div class="fw-bold fs-5 {{ $balance >= 0 ? 'text-success' : 'text-danger' }}">
-                            {{ number_format($balance, 2) }} DH
+                            {{ number_format($balance, 2) }} {{ $currency }}
                         </div>
                     </div>
                 </div>
@@ -121,7 +121,7 @@
             <div class="mb-3">
                 <div class="d-flex justify-content-between mb-1">
                     <span style="font-size:.88rem;font-weight:600">{{ $item->category?->name ?? 'Sans catégorie' }}</span>
-                    <span style="font-size:.85rem;color:var(--color-text-muted)">{{ number_format($item->total, 2) }} DH</span>
+                    <span style="font-size:.85rem;color:var(--color-text-muted)">{{ number_format($item->total, 2) }} {{ $currency }}</span>
                 </div>
                 <div class="progress" style="height:8px">
                     <div class="progress-bar bg-danger" style="width:{{ $maxSpent > 0 ? ($item->total / $maxSpent * 100) : 0 }}%"></div>
@@ -155,7 +155,7 @@
                             @endif
                         </td>
                         <td class="text-end fw-semibold {{ $t->type === 'income' ? 'text-success' : 'text-danger' }}">
-                            {{ $t->type === 'income' ? '+' : '-' }}{{ number_format($t->amount, 2) }} DH
+                            {{ $t->type === 'income' ? '+' : '-' }}{{ number_format($t->amount, 2) }} {{ $currency }}
                         </td>
                         <td style="color:var(--color-text-muted);font-size:.82rem">{{ $t->date?->format('d/m/Y') }}</td>
                     </tr>

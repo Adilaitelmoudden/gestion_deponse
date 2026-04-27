@@ -57,11 +57,11 @@
 
                 {{-- NEW: Amount range --}}
                 <div class="col-md-2">
-                    <label class="form-label">Montant min (DH)</label>
+                    <label class="form-label">Montant min ({{ $currency }})</label>
                     <input type="number" name="min_amount" step="0.01" class="form-control" placeholder="0" value="{{ request('min_amount') }}">
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label">Montant max (DH)</label>
+                    <label class="form-label">Montant max ({{ $currency }})</label>
                     <input type="number" name="max_amount" step="0.01" class="form-control" placeholder="9999" value="{{ request('max_amount') }}">
                 </div>
 
@@ -89,7 +89,7 @@
             <div class="card-body d-flex justify-content-between align-items-center">
                 <div>
                     <div class="small opacity-75">Total Revenus (all time)</div>
-                    <div class="fs-4 fw-bold">{{ number_format($totalIncome, 2) }} DH</div>
+                    <div class="fs-4 fw-bold">{{ number_format($totalIncome, 2) }} {{ $currency }}</div>
                 </div>
                 <i class="fas fa-arrow-up fa-2x opacity-50"></i>
             </div>
@@ -100,7 +100,7 @@
             <div class="card-body d-flex justify-content-between align-items-center">
                 <div>
                     <div class="small opacity-75">Total Dépenses (all time)</div>
-                    <div class="fs-4 fw-bold">{{ number_format($totalExpense, 2) }} DH</div>
+                    <div class="fs-4 fw-bold">{{ number_format($totalExpense, 2) }} {{ $currency }}</div>
                 </div>
                 <i class="fas fa-arrow-down fa-2x opacity-50"></i>
             </div>
@@ -111,7 +111,7 @@
             <div class="card-body d-flex justify-content-between align-items-center">
                 <div>
                     <div class="small opacity-75">Solde net</div>
-                    <div class="fs-4 fw-bold">{{ number_format($totalIncome - $totalExpense, 2) }} DH</div>
+                    <div class="fs-4 fw-bold">{{ number_format($totalIncome - $totalExpense, 2) }} {{ $currency }}</div>
                 </div>
                 <i class="fas fa-wallet fa-2x opacity-50"></i>
             </div>
@@ -195,7 +195,7 @@
                             </span>
                         </td>
                         <td class="{{ $transaction->type == 'income' ? 'text-success' : 'text-danger' }} fw-bold">
-                            {{ $transaction->type == 'income' ? '+' : '-' }}{{ number_format($transaction->amount, 2) }} DH
+                            {{ $transaction->type == 'income' ? '+' : '-' }}{{ number_format($transaction->amount, 2) }} {{ $currency }}
                         </td>
                         <td>
                             <div class="d-flex gap-1">

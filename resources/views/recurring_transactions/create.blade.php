@@ -32,7 +32,7 @@
             </div>
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Montant (DH) *</label>
+                    <label class="form-label">Montant ({{ $currency }}) *</label>
                     <input type="number" name="amount" step="0.01" min="0.01"
                            class="form-control @error('amount') is-invalid @enderror"
                            value="{{ old('amount') }}" required>

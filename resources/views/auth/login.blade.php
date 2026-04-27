@@ -6,8 +6,8 @@
 <div class="card auth-card">
     <div class="auth-header">
         <i class="fas fa-coins fa-3x mb-3"></i>
-        <h3>Gestion des Dépenses</h3>
-        <p class="mb-0">Connectez-vous à votre compte</p>
+        <h3>{{ $adminSettings['app_name'] ?? 'Gestion des Dépenses' }}</h3>
+        <p class="mb-0">{{ $adminSettings['welcome_message'] ?? 'Connectez-vous à votre compte' }}</p>
     </div>
     <div class="card-body p-4">
         <form action="{{ route('login') }}" method="POST">

@@ -21,7 +21,7 @@
         <div class="card bg-success text-white">
             <div class="card-body">
                 <h6>Total Revenus</h6>
-                <h3>{{ number_format($data['totalIncome'], 2) }} DH</h3>
+                <h3>{{ number_format($data['totalIncome'], 2) }} {{ $currency }}</h3>
             </div>
         </div>
     </div>
@@ -30,7 +30,7 @@
         <div class="card bg-danger text-white">
             <div class="card-body">
                 <h6>Total Dépenses</h6>
-                <h3>{{ number_format($data['totalExpense'], 2) }} DH</h3>
+                <h3>{{ number_format($data['totalExpense'], 2) }} {{ $currency }}</h3>
             </div>
         </div>
     </div>
@@ -39,7 +39,7 @@
         <div class="card {{ $data['totalIncome'] - $data['totalExpense'] >= 0 ? 'bg-info' : 'bg-warning' }} text-white">
             <div class="card-body">
                 <h6>Solde</h6>
-                <h3>{{ number_format($data['totalIncome'] - $data['totalExpense'], 2) }} DH</h3>
+                <h3>{{ number_format($data['totalIncome'] - $data['totalExpense'], 2) }} {{ $currency }}</h3>
             </div>
         </div>
     </div>
@@ -76,7 +76,7 @@
                         @foreach($data['expensesByCategory'] as $item)
                         <tr>
                             <td>{{ $item->category->name }}</td>
-                            <td>{{ number_format($item->total, 2) }} DH</td>
+                            <td>{{ number_format($item->total, 2) }} {{ $currency }}</td>
                             <td>{{ number_format(($item->total / $data['totalExpense']) * 100, 1) }}%</td>
                         </tr>
                         @endforeach
@@ -119,7 +119,7 @@
                                 </td>
                                 <td class="{{ $transaction->type == 'income' ? 'text-success' : 'text-danger' }}">
                                     {{ $transaction->type == 'income' ? '+' : '-' }}
-                                    {{ number_format($transaction->amount, 2) }} DH
+                                    {{ number_format($transaction->amount, 2) }} {{ $currency }}
                                 </td>
                             </tr>
                             @endforeach

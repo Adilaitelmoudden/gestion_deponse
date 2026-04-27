@@ -10,6 +10,8 @@ use App\Models\SavingsGoal;
 use App\Models\RecurringTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+use App\Services\CurrencyService;
 
 class DashboardController extends Controller
 {
@@ -38,6 +40,11 @@ class DashboardController extends Controller
             ->sum('amount');
             
         $balance = $totalIncome - $totalExpense;
+
+        // ── Currency conversion (MAD → selected currency) ──────────
+        $totalIncome  = CurrencyService::convert($totalIncome);
+        $totalExpense = CurrencyService::convert($totalExpense);
+        $balance      = CurrencyService::convert($balance);
         
         $expensesByCategory = Transaction::where('user_id', $userId)
             ->where('type', 'expense')
@@ -89,6 +96,10 @@ class DashboardController extends Controller
                 ->sum('amount');
             $budget->percentage = $budget->amount > 0 ? ($budget->spent / $budget->amount) * 100 : 0;
             $budget->remaining  = $budget->amount - $budget->spent;
+            // Convert to selected currency
+            $budget->amount    = CurrencyService::convert($budget->amount);
+            $budget->spent     = CurrencyService::convert($budget->spent);
+            $budget->remaining = CurrencyService::convert($budget->remaining);
 
             // NOUVEAU — burn rate : ratio (% dépensé) / (% du mois écoulé)
             $dayFraction = now()->daysInMonth > 0 ? now()->day / now()->daysInMonth : 1;
@@ -98,10 +109,10 @@ class DashboardController extends Controller
         $monthlyStats = [];
         for($i = 1; $i <= 12; $i++) {
             $monthlyStats[$i] = [
-                'income'  => Transaction::where('user_id', $userId)->where('type', 'income')
-                    ->whereMonth('date', $i)->whereYear('date', $currentYear)->sum('amount'),
-                'expense' => Transaction::where('user_id', $userId)->where('type', 'expense')
-                    ->whereMonth('date', $i)->whereYear('date', $currentYear)->sum('amount'),
+                'income'  => CurrencyService::convert(Transaction::where('user_id', $userId)->where('type', 'income')
+                    ->whereMonth('date', $i)->whereYear('date', $currentYear)->sum('amount')),
+                'expense' => CurrencyService::convert(Transaction::where('user_id', $userId)->where('type', 'expense')
+                    ->whereMonth('date', $i)->whereYear('date', $currentYear)->sum('amount')),
             ];
         }
 
@@ -111,10 +122,10 @@ class DashboardController extends Controller
             $day = now()->subDays($d)->format('Y-m-d');
             $last7Days[] = [
                 'label'   => now()->subDays($d)->format('d/m'),
-                'income'  => Transaction::where('user_id', $userId)->where('type', 'income')
-                    ->whereDate('date', $day)->sum('amount'),
-                'expense' => Transaction::where('user_id', $userId)->where('type', 'expense')
-                    ->whereDate('date', $day)->sum('amount'),
+                'income'  => CurrencyService::convert(Transaction::where('user_id', $userId)->where('type', 'income')
+                    ->whereDate('date', $day)->sum('amount')),
+                'expense' => CurrencyService::convert(Transaction::where('user_id', $userId)->where('type', 'expense')
+                    ->whereDate('date', $day)->sum('amount')),
             ];
         }
 
@@ -128,7 +139,7 @@ class DashboardController extends Controller
                 ->with('category')
                 ->orderBy('next_due_date')
                 ->get();
-            $upcomingBillsTotal = $upcomingBills->sum('amount');
+            $upcomingBillsTotal = CurrencyService::convert($upcomingBills->sum('amount'));
         } catch (\Exception $e) {
             // colonne optionnelle, on ignore
         }
@@ -138,6 +149,13 @@ class DashboardController extends Controller
 
         // NOUVEAU — Insights personnalisés
         $insights = $this->getInsights($userId, $totalIncome, $totalExpense, $budgets);
+
+        // Convert collection amounts to selected currency
+        $expensesByCategory->each(fn($c) => $c->total = CurrencyService::convert($c->total));
+        $incomeByCategory->each(fn($c) => $c->total = CurrencyService::convert($c->total));
+        $topExpenseCategories->each(fn($c) => $c->total = CurrencyService::convert($c->total));
+        $recentTransactions->each(fn($t) => $t->amount = CurrencyService::convert($t->amount));
+        $upcomingBills->each(fn($b) => $b->amount = CurrencyService::convert($b->amount));
 
         return view('dashboard', compact(
             'totalIncome', 'totalExpense', 'balance',
@@ -205,7 +223,7 @@ class DashboardController extends Controller
                     'text'=>'Budget "'.(optional($budget->category)->name ?? '—').'" utilisé à '.number_format($budget->percentage,0).'%. Attention !'];
             } elseif ($budget->percentage >= 100) {
                 $insights[] = ['type'=>'danger','icon'=>'fa-circle-exclamation',
-                    'text'=>'Budget "'.(optional($budget->category)->name ?? '—').'" dépassé de '.number_format($budget->remaining * -1,2).' DH.'];
+                    'text'=>'Budget "'.(optional($budget->category)->name ?? '—').'" dépassé de '.number_format($budget->remaining * -1,2).' ' . Cache::get('admin_system_settings', [])['default_currency'] ?? 'MAD' . '.'];
             }
         }
 

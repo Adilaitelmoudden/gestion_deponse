@@ -5,10 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Transaction;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class TransactionController extends Controller
 {
+    private function getCurrency(): string
+    {
+        return Cache::get('admin_system_settings', [])['default_currency'] ?? 'MAD';
+    }
     public function index(Request $request)
     {
         $userId = session('user_id');
@@ -102,7 +107,7 @@ class TransactionController extends Controller
             if ($user && !$user->canAfford((float) $validated['amount'])) {
                 return back()
                     ->withInput()
-                    ->with('error', '❌ Opération bloquée : solde insuffisant. Solde disponible : ' . number_format($user->getComputedBalance(), 2) . ' DH.');
+                    ->with('error', '❌ Opération bloquée : solde insuffisant. Solde disponible : ' . number_format($user->getComputedBalance(), 2) . ' ' . $this->getCurrency() . '.');
             }
         }
 
@@ -192,7 +197,7 @@ class TransactionController extends Controller
             $balanceAfter = $user->getComputedBalance() - (float) $transaction->amount;
             if ($balanceAfter < 0) {
                 return redirect()->route('transactions.index')
-                    ->with('error', '❌ Suppression bloquée : supprimer ce revenu rendrait votre solde négatif (' . number_format($balanceAfter, 2) . ' DH).');
+                    ->with('error', '❌ Suppression bloquée : supprimer ce revenu rendrait votre solde négatif (' . number_format($balanceAfter, 2) . ' ' . $this->getCurrency() . ').');
             }
         }
 
@@ -222,7 +227,7 @@ class TransactionController extends Controller
             $balanceAfter = $user->getComputedBalance() - (float) $incomeToRemove;
             if ($balanceAfter < 0) {
                 return redirect()->route('transactions.index')
-                    ->with('error', '❌ Suppression groupée bloquée : ces transactions contiennent des revenus qui rendraient votre solde négatif (' . number_format($balanceAfter, 2) . ' DH).');
+                    ->with('error', '❌ Suppression groupée bloquée : ces transactions contiennent des revenus qui rendraient votre solde négatif (' . number_format($balanceAfter, 2) . ' ' . $this->getCurrency() . ').');
             }
         }
 
@@ -246,7 +251,7 @@ class TransactionController extends Controller
         $callback = function () use ($transactions) {
             $handle = fopen('php://output', 'w');
             fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM for Excel
-            fputcsv($handle, ['Date', 'Description', 'Catégorie', 'Type', 'Montant (DH)'], ';');
+            fputcsv($handle, ['Date', 'Description', 'Catégorie', 'Type', 'Montant (' . $this->getCurrency() . ')'], ';');
             foreach ($transactions as $t) {
                 fputcsv($handle, [
                     $t->date->format('d/m/Y'),
@@ -290,12 +295,12 @@ class TransactionController extends Controller
             if ($pct >= 100) {
                 \App\Models\Notification::firstOrCreate(
                     ['user_id' => $userId, 'title' => '🔴 Budget dépassé : ' . ($category->name ?? '')],
-                    ['message' => "Budget \"{$category->name}\" dépassé ({$month}/{$year}). Dépensé : " . number_format($spent, 2) . " DH / " . number_format($budget->amount, 2) . " DH.", 'is_read' => false]
+                    ['message' => "Budget \"{$category->name}\" dépassé ({$month}/{$year}). Dépensé : " . number_format($spent, 2) . " " . $this->getCurrency() . " / " . number_format($budget->amount, 2) . " " . $this->getCurrency() . ".", 'is_read' => false]
                 );
             } elseif ($pct >= 80) {
                 \App\Models\Notification::firstOrCreate(
                     ['user_id' => $userId, 'title' => '🟡 Budget à 80% : ' . ($category->name ?? '')],
-                    ['message' => "Budget \"{$category->name}\" à {$pct}% ({$month}/{$year}). Dépensé : " . number_format($spent, 2) . " DH / " . number_format($budget->amount, 2) . " DH.", 'is_read' => false]
+                    ['message' => "Budget \"{$category->name}\" à {$pct}% ({$month}/{$year}). Dépensé : " . number_format($spent, 2) . " " . $this->getCurrency() . " / " . number_format($budget->amount, 2) . " " . $this->getCurrency() . ".", 'is_read' => false]
                 );
             }
         } catch (\Exception $e) {

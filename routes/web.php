@@ -18,9 +18,11 @@ use App\Http\Controllers\Admin\AdminUserProfileController;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminExportController;
 use App\Http\Controllers\Admin\AdminSettingsController;
+use App\Http\Controllers\Admin\AdminActivityLogController;
+use App\Http\Controllers\Admin\AdminStatisticsController;
 
 // Routes d'authentification (non protégées)
-Route::middleware(['guest'])->group(function () {
+Route::middleware(['guest', \App\Http\Middleware\MaintenanceMiddleware::class])->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/login', [AuthController::class, 'login']);
@@ -28,7 +30,7 @@ Route::middleware(['guest'])->group(function () {
 });
 
 // Routes protégées (authentification requise)
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\MaintenanceMiddleware::class, \App\Http\Middleware\LogActivityMiddleware::class])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // Profil
@@ -53,7 +55,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
     Route::post('reports/generate', [ReportController::class, 'generate'])->name('reports.generate');
 
-    // NEW: Notifications
+    // Notifications
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::delete('notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
@@ -99,8 +101,17 @@ Route::middleware(['auth'])->group(function () {
         Route::get('export/transactions', [AdminExportController::class, 'exportTransactions'])->name('export.transactions');
 
         // ── 5. Admin Settings ─────────────────────────────────────────
-        Route::get('settings',        [AdminSettingsController::class, 'index'])->name('settings.index');
-        Route::put('settings',        [AdminSettingsController::class, 'update'])->name('settings.update');
-        Route::post('settings/reset', [AdminSettingsController::class, 'reset'])->name('settings.reset');
+        Route::get('settings',              [AdminSettingsController::class, 'index'])->name('settings.index');
+        Route::put('settings',              [AdminSettingsController::class, 'update'])->name('settings.update');
+        Route::post('settings/reset',       [AdminSettingsController::class, 'reset'])->name('settings.reset');
+        Route::post('settings/clear-cache', [AdminSettingsController::class, 'clearCache'])->name('settings.clear-cache');
+        Route::get('settings/export',       [AdminSettingsController::class, 'export'])->name('settings.export');
+
+        // ── 6. Journaux d'activité ────────────────────────────────────
+        Route::get('activity-logs',          [AdminActivityLogController::class, 'index'])->name('activity-logs.index');
+        Route::delete('activity-logs/purge', [AdminActivityLogController::class, 'purge'])->name('activity-logs.purge');
+
+        // ── 7. Statistiques avancées ──────────────────────────────────
+        Route::get('statistics', [AdminStatisticsController::class, 'index'])->name('statistics.index');
     });
 });

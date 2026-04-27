@@ -42,7 +42,7 @@
                                 </span>
                             </td>
                             <td class="{{ $item->type == 'income' ? 'text-success' : 'text-danger' }}">
-                                <strong>{{ $item->type == 'income' ? '+' : '-' }}{{ number_format($item->amount, 2) }} DH</strong>
+                                <strong>{{ $item->type == 'income' ? '+' : '-' }}{{ number_format($item->amount, 2) }} {{ $currency }}</strong>
                             </td>
                             <td>
                                 <span class="badge bg-info">{{ $item->frequency_label }}</span>

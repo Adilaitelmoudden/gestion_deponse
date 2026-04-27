@@ -27,8 +27,8 @@
 
                 <div class="mb-3">
                     <div class="d-flex justify-content-between mb-1">
-                        <span class="fw-bold">{{ number_format($savingsGoal->current_amount, 2) }} DH</span>
-                        <span class="text-muted">/ {{ number_format($savingsGoal->target_amount, 2) }} DH</span>
+                        <span class="fw-bold">{{ number_format($savingsGoal->current_amount, 2) }} {{ $currency }}</span>
+                        <span class="text-muted">/ {{ number_format($savingsGoal->target_amount, 2) }} {{ $currency }}</span>
                     </div>
                     <div class="progress" style="height:18px;">
                         <div class="progress-bar {{ $savingsGoal->is_completed ? 'bg-success' : 'bg-primary' }} progress-bar-striped"
@@ -36,7 +36,7 @@
                             {{ $savingsGoal->percentage }}%
                         </div>
                     </div>
-                    <small class="text-muted">Restant: {{ number_format($savingsGoal->remaining, 2) }} DH</small>
+                    <small class="text-muted">Restant: {{ number_format($savingsGoal->remaining, 2) }} {{ $currency }}</small>
                 </div>
 
                 @if($savingsGoal->deadline)
@@ -53,7 +53,7 @@
                     @csrf
                     <div class="input-group mb-2">
                         <input type="number" name="amount" step="0.01" min="0.01" class="form-control"
-                               placeholder="Montant (DH)" required>
+                               placeholder="Montant ({{ $currency }})" required>
                         <button class="btn btn-success" type="submit"><i class="fas fa-plus"></i> Verser</button>
                     </div>
                     <input type="text" name="note" class="form-control form-control-sm" placeholder="Note (optionnel)">
@@ -68,7 +68,7 @@
                     <div class="input-group mb-2">
                         <input type="number" name="amount" step="0.01" min="0.01"
                                max="{{ $savingsGoal->current_amount }}" class="form-control"
-                               placeholder="Montant (DH)" required>
+                               placeholder="Montant ({{ $currency }})" required>
                         <button class="btn btn-warning" type="submit"><i class="fas fa-minus"></i> Retirer</button>
                     </div>
                     <input type="text" name="note" class="form-control form-control-sm" placeholder="Note (optionnel)">
@@ -107,7 +107,7 @@
                                         @endif
                                     </td>
                                     <td class="{{ $entry['type'] == 'deposit' ? 'text-success' : 'text-warning' }}">
-                                        <strong>{{ $entry['type'] == 'deposit' ? '+' : '-' }}{{ number_format($entry['amount'], 2) }} DH</strong>
+                                        <strong>{{ $entry['type'] == 'deposit' ? '+' : '-' }}{{ number_format($entry['amount'], 2) }} {{ $currency }}</strong>
                                     </td>
                                     <td class="text-muted">{{ $entry['note'] ?: '-' }}</td>
                                 </tr>

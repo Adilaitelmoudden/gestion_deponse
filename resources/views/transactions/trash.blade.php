@@ -47,7 +47,7 @@
                                 </span>
                             </td>
                             <td class="{{ $transaction->type == 'income' ? 'text-success' : 'text-danger' }}">
-                                {{ number_format($transaction->amount, 2) }} DH
+                                {{ number_format($transaction->amount, 2) }} {{ $currency }}
                             </td>
                             <td class="text-muted">{{ $transaction->deleted_at->format('d/m/Y H:i') }}</td>
                             <td>

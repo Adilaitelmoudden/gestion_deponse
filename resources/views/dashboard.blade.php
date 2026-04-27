@@ -51,7 +51,7 @@
                     <div>
                         <div class="text-muted small mb-1">Revenus ce mois</div>
                         <div class="fs-3 fw-bold text-success">
-                            <span class="count-up" data-target="{{ $totalIncome }}">{{ number_format($totalIncome, 2) }}</span> DH
+                            <span class="count-up" data-target="{{ $totalIncome }}">{{ number_format($totalIncome, 2) }}</span> {{ $currency }}
                         </div>
                         {{-- NOUVEAU sparkline --}}
                         <canvas class="sparkline mt-2" data-values="{{ json_encode(array_column($last7Days, 'income')) }}" data-color="#22c55e" height="36" style="width:100%;max-height:36px"></canvas>
@@ -71,7 +71,7 @@
                     <div>
                         <div class="text-muted small mb-1">Dépenses ce mois</div>
                         <div class="fs-3 fw-bold text-danger">
-                            <span class="count-up" data-target="{{ $totalExpense }}">{{ number_format($totalExpense, 2) }}</span> DH
+                            <span class="count-up" data-target="{{ $totalExpense }}">{{ number_format($totalExpense, 2) }}</span> {{ $currency }}
                         </div>
                         <canvas class="sparkline mt-2" data-values="{{ json_encode(array_column($last7Days, 'expense')) }}" data-color="#ef4444" height="36" style="width:100%;max-height:36px"></canvas>
                     </div>
@@ -90,7 +90,7 @@
                     <div>
                         <div class="text-muted small mb-1">Solde</div>
                         <div class="fs-3 fw-bold {{ $balance >= 0 ? 'text-primary' : 'text-danger' }}">
-                            <span class="count-up" data-target="{{ $balance }}">{{ number_format($balance, 2) }}</span> DH
+                            <span class="count-up" data-target="{{ $balance }}">{{ number_format($balance, 2) }}</span> {{ $currency }}
                         </div>
                         <div class="small mt-1">
                             @if($balance >= 0)
@@ -171,7 +171,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="mb-0"><i class="fas fa-calendar-alt me-2 text-info"></i>Factures à venir — 7 jours</h6>
                 @if($upcomingBillsTotal > 0)
-                <span class="badge bg-info text-white">{{ number_format($upcomingBillsTotal, 2) }} DH</span>
+                <span class="badge bg-info text-white">{{ number_format($upcomingBillsTotal, 2) }} {{ $currency }}</span>
                 @endif
             </div>
             <div class="card-body p-0">
@@ -185,7 +185,7 @@
                         <div class="fw-semibold small">{{ $bill->name }}</div>
                         <div class="text-muted" style="font-size:11px">{{ \Carbon\Carbon::parse($bill->next_due_date)->format('d/m/Y') }}</div>
                     </div>
-                    <div class="text-danger fw-bold small">{{ number_format($bill->amount, 2) }} DH</div>
+                    <div class="text-danger fw-bold small">{{ number_format($bill->amount, 2) }} {{ $currency }}</div>
                 </div>
                 @empty
                 <div class="text-center py-4 text-muted">
@@ -246,7 +246,7 @@
                 <div class="d-flex justify-content-between mb-1">
                     <span class="fw-semibold">{{ $budget->category->name }}</span>
                     <span class="small text-muted">
-                        {{ number_format($budget->spent, 2) }} / {{ number_format($budget->amount, 2) }} DH
+                        {{ number_format($budget->spent, 2) }} / {{ number_format($budget->amount, 2) }} {{ $currency }}
                         <span class="badge bg-{{ $color }} ms-1">{{ number_format($budget->percentage, 0) }}%</span>
                         {{-- NOUVEAU burn rate --}}
                         <span title="{{ $burnLabel }}" style="cursor:help">{{ $burnIcon }}</span>
@@ -256,9 +256,9 @@
                     <div class="progress-bar bg-{{ $color }}" style="width:{{ $pct }}%; transition: width 0.8s ease"></div>
                 </div>
                 @if($budget->remaining < 0)
-                    <small class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Dépassé de {{ number_format(abs($budget->remaining), 2) }} DH</small>
+                    <small class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Dépassé de {{ number_format(abs($budget->remaining), 2) }} {{ $currency }}</small>
                 @else
-                    <small class="text-muted">Reste : {{ number_format($budget->remaining, 2) }} DH</small>
+                    <small class="text-muted">Reste : {{ number_format($budget->remaining, 2) }} {{ $currency }}</small>
                 @endif
             </div>
         @endforeach
@@ -282,7 +282,7 @@
             <div class="flex-grow-1">
                 <div class="d-flex justify-content-between mb-1">
                     <span>{{ $cat->category->name ?? 'N/A' }}</span>
-                    <span class="text-danger fw-semibold">{{ number_format($cat->total, 2) }} DH</span>
+                    <span class="text-danger fw-semibold">{{ number_format($cat->total, 2) }} {{ $currency }}</span>
                 </div>
                 <div class="progress" style="height:5px">
                     <div class="progress-bar bg-danger" style="width:{{ ($cat->total / $maxTop) * 100 }}%; transition: width 0.8s ease"></div>
@@ -325,7 +325,7 @@
                             </span>
                         </td>
                         <td class="{{ $transaction->type == 'income' ? 'text-success' : 'text-danger' }} fw-bold">
-                            {{ $transaction->type == 'income' ? '+' : '-' }}{{ number_format($transaction->amount, 2) }} DH
+                            {{ $transaction->type == 'income' ? '+' : '-' }}{{ number_format($transaction->amount, 2) }} {{ $currency }}
                         </td>
                     </tr>
                     @empty
@@ -373,6 +373,7 @@
 
 @push('scripts')
 <script>
+    const currency = "{{ $currency }}";
 // ══════════════════════════════════════════════════════
 // NOUVEAU — Count-up animation sur les chiffres
 // ══════════════════════════════════════════════════════
@@ -438,7 +439,7 @@ new Chart(document.getElementById('expensesChart'), {
         cutout: '60%',
         plugins: {
             legend: { position: 'right', labels: { boxWidth: 12, padding: 12 } },
-            tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${Number(ctx.raw).toLocaleString('fr-FR')} DH` } }
+            tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${Number(ctx.raw).toLocaleString('fr-FR')} ` + currency } }
         }
     }
 });
@@ -487,7 +488,7 @@ new Chart(document.getElementById('monthlyChart'), {
         responsive: true,
         interaction: { mode: 'index', intersect: false },
         plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } } },
-        scales: { y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString('fr-FR') + ' DH' } } }
+        scales: { y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString('fr-FR') + ' ' + currency } } }
     }
 });
 </script>

@@ -39,7 +39,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-6">
-                            <h3>{{ number_format($totalAmount, 2) }} DH</h3>
+                            <h3>{{ number_format($totalAmount, 2) }} {{ $currency }}</h3>
                             <small>{{ number_format($percentage, 1) }}% du total</small>
                         </div>
                         <div class="col-6">
@@ -58,7 +58,7 @@
                             <span>{{ $transaction->date->format('d/m/Y') }}</span>
                             <span>{{ $transaction->description ?: '-' }}</span>
                             <span class="{{ $transaction->type == 'income' ? 'text-success' : 'text-danger' }}">
-                                {{ number_format($transaction->amount, 2) }} DH
+                                {{ number_format($transaction->amount, 2) }} {{ $currency }}
                             </span>
                         </li>
                         @endforeach
@@ -81,16 +81,16 @@
                 <div class="row text-center">
                     <div class="col-md-4">
                         <h6>Total Revenus</h6>
-                        <h4 class="text-success">{{ number_format($data['totalYearIncome'], 2) }} DH</h4>
+                        <h4 class="text-success">{{ number_format($data['totalYearIncome'], 2) }} {{ $currency }}</h4>
                     </div>
                     <div class="col-md-4">
                         <h6>Total Dépenses</h6>
-                        <h4 class="text-danger">{{ number_format($data['totalYearExpense'], 2) }} DH</h4>
+                        <h4 class="text-danger">{{ number_format($data['totalYearExpense'], 2) }} {{ $currency }}</h4>
                     </div>
                     <div class="col-md-4">
                         <h6>Solde</h6>
                         <h4 class="{{ $data['totalYearIncome'] - $data['totalYearExpense'] >= 0 ? 'text-success' : 'text-danger' }}">
-                            {{ number_format($data['totalYearIncome'] - $data['totalYearExpense'], 2) }} DH
+                            {{ number_format($data['totalYearIncome'] - $data['totalYearExpense'], 2) }} {{ $currency }}
                         </h4>
                     </div>
                 </div>

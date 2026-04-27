@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Cache;
 
 use App\Models\SavingsGoal;
 use Illuminate\Http\Request;
@@ -149,7 +150,7 @@ class SavingsGoalController extends Controller
         $savings_goal->save();
 
         return redirect()->route('savings_goals.show', $savings_goal)
-            ->with('success', number_format($request->amount, 2) . ' DH versés avec succès !');
+            ->with('success', number_format($request->amount, 2) . ' ' . (Cache::get('admin_system_settings', [])['default_currency'] ?? 'MAD') . ' versés avec succès !');
     }
 
     // ── Withdraw ─────────────────────────────────────────────
@@ -177,6 +178,6 @@ class SavingsGoalController extends Controller
         $savings_goal->save();
 
         return redirect()->route('savings_goals.show', $savings_goal)
-            ->with('success', number_format($request->amount, 2) . ' DH retirés.');
+            ->with('success', number_format($request->amount, 2) . ' ' . (Cache::get('admin_system_settings', [])['default_currency'] ?? 'MAD') . ' retirés.');
     }
 }

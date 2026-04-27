@@ -56,7 +56,7 @@
         <div class="card card-stats h-100" style="border-top:4px solid #16a34a">
             <div class="card-body text-center">
                 <div class="mb-1"><i class="fas fa-arrow-up fa-2x" style="color:#16a34a"></i></div>
-                <div class="fs-2 fw-bold" style="color:#16a34a">{{ number_format($totalIncome, 2) }} DH</div>
+                <div class="fs-2 fw-bold" style="color:#16a34a">{{ number_format($totalIncome, 2) }} {{ $currency }}</div>
                 <div class="small" style="color:var(--color-text-muted)">Revenus totaux</div>
             </div>
         </div>
@@ -65,7 +65,7 @@
         <div class="card card-stats h-100" style="border-top:4px solid #dc2626">
             <div class="card-body text-center">
                 <div class="mb-1"><i class="fas fa-arrow-down fa-2x" style="color:#dc2626"></i></div>
-                <div class="fs-2 fw-bold" style="color:#dc2626">{{ number_format($totalExpense, 2) }} DH</div>
+                <div class="fs-2 fw-bold" style="color:#dc2626">{{ number_format($totalExpense, 2) }} {{ $currency }}</div>
                 <div class="small" style="color:var(--color-text-muted)">Dépenses totales</div>
             </div>
         </div>
@@ -131,7 +131,7 @@
                         @forelse($topCategories as $cat)
                             <tr>
                                 <td>{{ $cat->name }}</td>
-                                <td class="text-end text-danger fw-semibold">{{ number_format($cat->total_spent, 2) }} DH</td>
+                                <td class="text-end text-danger fw-semibold">{{ number_format($cat->total_spent, 2) }} {{ $currency }}</td>
                             </tr>
                         @empty
                             <tr><td colspan="2" class="text-center" style="color:var(--color-text-muted)">Aucune donnée</td></tr>
@@ -204,7 +204,7 @@
                                     @endif
                                 </td>
                                 <td class="text-end fw-semibold {{ $t->type === 'income' ? 'text-success' : 'text-danger' }}">
-                                    {{ $t->type === 'income' ? '+' : '-' }}{{ number_format($t->amount, 2) }} DH
+                                    {{ $t->type === 'income' ? '+' : '-' }}{{ number_format($t->amount, 2) }} {{ $currency }}
                                 </td>
                                 <td style="color:var(--color-text-muted);font-size:.8rem">{{ $t->date?->format('d/m/Y') }}</td>
                             </tr>

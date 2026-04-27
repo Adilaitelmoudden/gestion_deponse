@@ -17,6 +17,13 @@ class AuthController extends Controller
     // Afficher formulaire register
     public function showRegister()
     {
+        $settings = \Illuminate\Support\Facades\Cache::get('admin_system_settings', []);
+        $allowRegistration = $settings['allow_registration'] ?? true;
+
+        if (!$allowRegistration) {
+            return redirect()->route('login')->with('error', 'Les inscriptions sont temporairement désactivées. Contactez l\'administrateur.');
+        }
+
         return view('auth.register');
     }
 
@@ -63,6 +70,13 @@ class AuthController extends Controller
     // Traiter le register
     public function register(Request $request)
     {
+        $settings = \Illuminate\Support\Facades\Cache::get('admin_system_settings', []);
+        $allowRegistration = $settings['allow_registration'] ?? true;
+
+        if (!$allowRegistration) {
+            return redirect()->route('login')->with('error', 'Les inscriptions sont temporairement désactivées. Contactez l\'administrateur.');
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',

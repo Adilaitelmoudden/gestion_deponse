@@ -57,7 +57,7 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label for="amount" class="form-label">Montant (DH) *</label>
+                        <label for="amount" class="form-label">Montant ({{ $currency }}) *</label>
                         <input type="number" step="0.01" name="amount" id="amount" 
                                class="form-control @error('amount') is-invalid @enderror" 
                                value="{{ old('amount', $transaction->amount) }}" placeholder="0.00" required>

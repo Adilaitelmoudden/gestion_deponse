@@ -36,7 +36,7 @@
                     <div class="col-md-8">
                         <h3 class="{{ $transaction->type == 'income' ? 'text-success' : 'text-danger' }}">
                             {{ $transaction->type == 'income' ? '+' : '-' }}
-                            {{ number_format($transaction->amount, 2) }} DH
+                            {{ number_format($transaction->amount, 2) }} {{ $currency }}
                         </h3>
                     </div>
                 </div>

@@ -6,7 +6,7 @@
 <div class="card auth-card">
     <div class="auth-header">
         <i class="fas fa-user-plus fa-3x mb-3"></i>
-        <h3>Créer un compte</h3>
+        <h3>{{ $adminSettings['app_name'] ?? 'Gestion des Dépenses' }}</h3>
         <p class="mb-0">Inscrivez-vous gratuitement</p>
     </div>
     <div class="card-body p-4">

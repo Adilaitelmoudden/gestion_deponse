@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Gestion des Dépenses')</title>
+    <title>@yield('title', $adminSettings['app_name'] ?? 'Gestion des Dépenses')</title>
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -638,7 +638,7 @@
             <div class="sidebar-logo-icon">
                 <i class="fas fa-coins fa-2x text-white"></i>
             </div>
-            <h2 class="sidebar-title">Gestion Dépenses</h2>
+            <h2 class="sidebar-title">{{ $adminSettings['app_name'] ?? 'Gestion Dépenses' }}</h2>
             <p class="sidebar-subtitle">Gérez vos finances facilement</p>
             <hr class="sidebar-divider">
         </div>
@@ -696,6 +696,14 @@
                 <a class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}"
                    href="{{ route('admin.settings.index') }}">
                     <i class="fas fa-cog"></i> Paramètres
+                </a>
+                <a class="nav-link {{ request()->routeIs('admin.statistics.*') ? 'active' : '' }}"
+                   href="{{ route('admin.statistics.index') }}">
+                    <i class="fas fa-chart-line"></i> Statistiques avancées
+                </a>
+                <a class="nav-link {{ request()->routeIs('admin.activity-logs.*') ? 'active' : '' }}"
+                   href="{{ route('admin.activity-logs.index') }}">
+                    <i class="fas fa-history"></i> Journaux d'activité
                 </a>
             @endif
         </nav>
@@ -835,7 +843,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-6 text-md-start text-center">
-                        <small>&copy; {{ date('Y') }} Gestion des Dépenses. Tous droits réservés.</small>
+                        <small>&copy; {{ date('Y') }} {{ $adminSettings['app_name'] ?? 'Gestion des Dépenses' }}. Tous droits réservés.</small>
                     </div>
                     <div class="col-md-6 text-md-end text-center">
                         <small>
@@ -1007,7 +1015,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             </div>
             <div class="mb-2">
-                <input type="number" name="amount" class="form-control form-control-sm" placeholder="Montant (DH)" min="0.01" step="0.01" required>
+                <input type="number" name="amount" class="form-control form-control-sm" placeholder="Montant ({{ $currency }})" min="0.01" step="0.01" required>
             </div>
             <div class="mb-2">
                 <select name="category_id" class="form-select form-select-sm" required id="fab-category-select">

@@ -21,7 +21,7 @@
         <div class="card bg-success text-white">
             <div class="card-body">
                 <h6>Total Revenus Annuels</h6>
-                <h3>{{ number_format($data['totalYearIncome'], 2) }} DH</h3>
+                <h3>{{ number_format($data['totalYearIncome'], 2) }} {{ $currency }}</h3>
             </div>
         </div>
     </div>
@@ -30,7 +30,7 @@
         <div class="card bg-danger text-white">
             <div class="card-body">
                 <h6>Total Dépenses Annuelles</h6>
-                <h3>{{ number_format($data['totalYearExpense'], 2) }} DH</h3>
+                <h3>{{ number_format($data['totalYearExpense'], 2) }} {{ $currency }}</h3>
             </div>
         </div>
     </div>
@@ -39,7 +39,7 @@
         <div class="card {{ $data['totalYearIncome'] - $data['totalYearExpense'] >= 0 ? 'bg-info' : 'bg-warning' }} text-white">
             <div class="card-body">
                 <h6>Solde Annuel</h6>
-                <h3>{{ number_format($data['totalYearIncome'] - $data['totalYearExpense'], 2) }} DH</h3>
+                <h3>{{ number_format($data['totalYearIncome'] - $data['totalYearExpense'], 2) }} {{ $currency }}</h3>
             </div>
         </div>
     </div>
@@ -86,10 +86,10 @@
                                         {{ DateTime::createFromFormat('!m', $month)->format('F') }}
                                     </strong>
                                 </td>
-                                <td class="text-success">{{ number_format($stats['income'], 2) }} DH</td>
-                                <td class="text-danger">{{ number_format($stats['expense'], 2) }} DH</td>
+                                <td class="text-success">{{ number_format($stats['income'], 2) }} {{ $currency }}</td>
+                                <td class="text-danger">{{ number_format($stats['expense'], 2) }} {{ $currency }}</td>
                                 <td class="{{ $stats['balance'] >= 0 ? 'text-success' : 'text-danger' }}">
-                                    {{ number_format($stats['balance'], 2) }} DH
+                                    {{ number_format($stats['balance'], 2) }} {{ $currency }}
                                 </td>
                                 <td>
                                     @if($stats['balance'] >= 0)
@@ -130,7 +130,7 @@
                                 @foreach($data['categoriesSummary']->where('type', 'expense') as $cat)
                                 <tr>
                                     <td>{{ $cat->category->name }}</td>
-                                    <td>{{ number_format($cat->total, 2) }} DH</td>
+                                    <td>{{ number_format($cat->total, 2) }} {{ $currency }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -149,7 +149,7 @@
                                 @foreach($data['categoriesSummary']->where('type', 'income') as $cat)
                                 <tr>
                                     <td>{{ $cat->category->name }}</td>
-                                    <td>{{ number_format($cat->total, 2) }} DH</td>
+                                    <td>{{ number_format($cat->total, 2) }} {{ $currency }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>

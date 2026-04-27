@@ -8,6 +8,7 @@ use App\Models\Budget;
 use App\Models\SavingsGoal;
 use App\Models\RecurringTransaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -218,6 +219,7 @@ class AiAssistantController extends Controller
         $balanceTrend = $ctx['income'] - $ctx['expense'];
         $savingsRate  = $ctx['income'] > 0 ? round(($balanceTrend / $ctx['income']) * 100, 1) : 0;
         $prevBalance  = $ctx['prevIncome'] - $ctx['prevExpense'];
+        $currency     = Cache::get('admin_system_settings', [])['default_currency'] ?? 'MAD';
 
         return "Tu es un assistant financier personnel intégré dans une application de gestion des dépenses.
 Tu parles français et darija marocaine (mix naturel). Sois concis, chaleureux et utile.
@@ -226,10 +228,10 @@ Tu as accès aux données financières RÉELLES de l'utilisateur ci-dessous.
 ══════════════ DONNÉES DU MOIS EN COURS ({$month} {$year}) ══════════════
 
 RÉSUMÉ :
-- Revenus    : {$ctx['income']} DH
-- Dépenses   : {$ctx['expense']} DH
-- Solde      : {$ctx['balance']} DH  ({$savingsRate}% taux d'épargne)
-- Mois préc. : revenus {$ctx['prevIncome']} DH / dépenses {$ctx['prevExpense']} DH / solde {$prevBalance} DH
+- Revenus    : {$ctx['income']} {$currency}
+- Dépenses   : {$ctx['expense']} {$currency}
+- Solde      : {$ctx['balance']} {$currency}  ({$savingsRate}% taux d'épargne)
+- Mois préc. : revenus {$ctx['prevIncome']} {$currency} / dépenses {$ctx['prevExpense']} {$currency} / solde {$prevBalance} {$currency}
 
 TOP CATÉGORIES DE DÉPENSES :
 {$topCatsJson}

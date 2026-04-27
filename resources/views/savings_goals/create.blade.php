@@ -17,14 +17,14 @@
             </div>
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Montant cible (DH) *</label>
+                    <label class="form-label">Montant cible ({{ $currency }}) *</label>
                     <input type="number" name="target_amount" step="0.01" min="1"
                            class="form-control @error('target_amount') is-invalid @enderror"
                            value="{{ old('target_amount') }}" required>
                     @error('target_amount')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Épargne initiale (DH)</label>
+                    <label class="form-label">Épargne initiale ({{ $currency }})</label>
                     <input type="number" name="current_amount" step="0.01" min="0"
                            class="form-control" value="{{ old('current_amount', 0) }}">
                 </div>

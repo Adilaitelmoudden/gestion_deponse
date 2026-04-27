@@ -90,15 +90,15 @@
                     <div class="row text-center">
                         <div class="col-md-4">
                             <small class="text-muted">Budget</small><br>
-                            <strong>{{ number_format($budget->amount, 2) }} DH</strong>
+                            <strong>{{ number_format($budget->amount, 2) }} {{ $currency }}</strong>
                         </div>
                         <div class="col-md-4">
                             <small class="text-muted">Dépensé</small><br>
-                            <strong class="text-danger">{{ number_format($budget->spent, 2) }} DH</strong>
+                            <strong class="text-danger">{{ number_format($budget->spent, 2) }} {{ $currency }}</strong>
                         </div>
                         <div class="col-md-4">
                             <small class="text-muted">Restant</small><br>
-                            <strong class="{{ $remainingClass }}">{{ number_format($budget->remaining, 2) }} DH</strong>
+                            <strong class="{{ $remainingClass }}">{{ number_format($budget->remaining, 2) }} {{ $currency }}</strong>
                         </div>
                     </div>
                 </div>
