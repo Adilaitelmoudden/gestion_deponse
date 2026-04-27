@@ -45,23 +45,6 @@ class AiAssistantController extends Controller
             $context      = $this->buildFinancialContext($userId);
             $systemPrompt = $this->buildSystemPrompt($context);
 
-            // Build Gemini contents array (Gemini uses "model" instead of "assistant")
-            $contents = [];
-
-            foreach (($request->history ?? []) as $turn) {
-                if (isset($turn['role'], $turn['content']) && in_array($turn['role'], ['user', 'assistant'])) {
-                    $contents[] = [
-                        'role'  => $turn['role'] === 'assistant' ? 'model' : 'user',
-                        'parts' => [['text' => (string) $turn['content']]],
-                    ];
-                }
-            }
-
-            $contents[] = [
-                'role'  => 'user',
-                'parts' => [['text' => $request->message]],
-            ];
-
             $apiKey = env('GROQ_API_KEY', '');
 
             if (empty($apiKey)) {
@@ -127,8 +110,8 @@ class AiAssistantController extends Controller
             return response()->json(['reply' => $text]);
 
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            Log::error('Gemini connection error: ' . $e->getMessage());
-            return response()->json(['reply' => '⚠️ ما قدرناش نوصلو لـ Gemini. تحقق من الاتصال بالإنترنت.']);
+            Log::error('Groq connection error: ' . $e->getMessage());
+            return response()->json(['reply' => '⚠️ ما قدرناش نوصلو لـ Groq. تحقق من الاتصال بالإنترنت.']);
         } catch (\Exception $e) {
             Log::error('AiAssistant error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json(['reply' => '⚠️ خطأ داخلي: ' . $e->getMessage()]);

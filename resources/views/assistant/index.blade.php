@@ -314,7 +314,7 @@ async function sendMessage() {
 }
 
 function sendSuggestion(btn) {
-    inputEl.value = btn.textContent.trim().replace(/^[^\s]+\s/, '');
+    inputEl.value = btn.textContent.trim().replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}]+\s*/u, '').trim();
     sendMessage();
 }
 
